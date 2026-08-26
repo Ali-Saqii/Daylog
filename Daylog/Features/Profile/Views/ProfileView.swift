@@ -1,0 +1,175 @@
+//
+// ProfileView.swift
+// Daylog
+//
+// Created by Mac mini on 17/08/2026.
+//
+import SwiftUI
+enum destination {
+    case updatePassword
+    case updateEmail
+}
+struct ProfileView: View {
+    @EnvironmentObject private var appState: AppState
+    @StateObject private var profileVM = ProfileViewModel()
+    @State var showAuthenticationView = false
+    @State private var showUpdatePasswordView = false
+    @State private var showUpdateEmailView = false
+    @State private var selectedDestination: destination? = nil
+    var body: some View {
+        ZStack {
+            Color.dlBackground.ignoresSafeArea(.all)
+            VStack {
+                
+                ProfilePicView
+                AccountSectionView
+                if let errorMessage = profileVM.errorMessage {
+                    Text(errorMessage)
+                        .font(.dmSans(20, weight: .regular))
+                        .foregroundStyle(.red)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: {profileVM.errorMessage = nil})
+
+                    }
+                }
+                
+                PrimaryButton(title: "logOut") {
+                    logOut()
+                        
+                }.padding(.horizontal)
+            }
+        }
+        .navigationDestination(isPresented: $showUpdatePasswordView) {
+            UpdatePasswordView()
+                .environmentObject(profileVM)
+        }
+        .navigationDestination(isPresented: $showUpdateEmailView) {
+            upDateEmailView()
+                .environmentObject(profileVM)
+        }
+        .fullScreenCover(isPresented: $showAuthenticationView) {
+            ReAuthenticationView(showAuthenticate: $showAuthenticationView, showUpdatePasswordView: $showUpdatePasswordView, showUpdateEmailView: $showUpdateEmailView, selectedDestination: $selectedDestination)
+                .environmentObject(profileVM)
+        }
+    }
+    func logOut() {
+        profileVM.signOut()
+        appState.isLoggedIn = !profileVM.isSingOut
+    }
+}
+extension ProfileView {
+    
+    private var ProfilePicView: some View {
+        VStack {
+            
+            HStack {
+                AsyncImage(url: URL(string:""), scale: 100) { phase in
+                    switch phase {
+                    case (let img):
+                        img
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .clipped()
+                    }
+                } placeholder: {
+                    Text("SA")
+                        .font(.dmSans(40, weight: .black))
+                        .foregroundStyle(.orange)
+                        .frame(width: 100, height: 100)
+                        .background(
+                            Circle()
+                                .fill(.orange.opacity(0.3))
+                        )
+                }
+                .overlay {
+                    Circle()
+                        .stroke(.orange,lineWidth: 2)
+                        .overlay(alignment: .bottomTrailing) {
+                            Circle()
+                                .fill(.orange)
+                                .frame(width: 25, height: 25)
+                                .overlay {
+                                    Text("+")
+                                        .font(.dmSans(25, weight: .black))
+                                        .foregroundStyle(.white)
+                                    
+                                }
+                        }
+                        .onTapGesture {
+                            print("Hii")
+                        }
+                }
+                Spacer()
+                VStack(alignment:.leading) {
+                    Text ("Sadaqat ali".capitalized)
+                        .font(.dmSans(28, weight: .medium))
+                    Text ("email@example.com")
+                        .font(.dmSans(20.5, weight: .black))
+                        .tint(.black.opacity(0.7))
+                    Text (" Member since Aug 2026".capitalized)
+                        .font(.headline)
+                        .foregroundStyle(.black.opacity(0.7))
+                }
+                Spacer()
+            }
+            HStack(spacing:18) {
+                    GridView(num: 3, title: "Habits")
+                    GridView(num: 12, title: "Best Streak")
+                    GridView(num: 8, title: "Entries")
+            }
+            }.padding(.horizontal)
+    }
+    private var AccountSectionView: some View {
+        VStack(spacing: 0){
+            List {
+                Section {
+                
+                        RowView(image: "person", title: "Edit profile", text: "")
+                 
+
+                
+                        RowView(image: "lock", title: "Change password", text: "")
+                        .onTapGesture {
+                            withAnimation{
+                                selectedDestination = .updatePassword
+                                showAuthenticationView.toggle()
+                            }
+                        }
+                 
+                        RowView(image: "envelope", title: "Change email", text: "")
+                        .onTapGesture {
+                            withAnimation{
+                                selectedDestination = .updateEmail
+                                showAuthenticationView.toggle()
+                            }
+                        }
+                   
+                 
+                } header: {
+                    Text("Account".capitalized)
+                }
+                Section {
+                    RowView(image: "bell", title: "Daily Reminder", text: "on")
+                    RowView(image: "moon", title: "Appearance", text: "system")
+                
+                } header: {
+                    Text("Preferences".capitalized)
+                }
+           
+            }.scrollContentBackground(.hidden)
+                .background(Color(red: 0.98, green: 0.96, blue: 0.93))
+                .listStyle(.insetGrouped)
+                .scrollDisabled(true)
+                .listSectionSpacing(0)
+        }
+    }
+ 
+}
+
+#Preview {
+        ProfileView()
+            .environmentObject(AppState())
+}

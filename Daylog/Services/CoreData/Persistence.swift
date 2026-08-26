@@ -2,7 +2,7 @@
 //  Persistence.swift
 //  Daylog
 //
-//  Created by Mac mini on 23/08/2026.
+//  Created by Mac mini on 10/08/2026.
 //
 
 import CoreData
