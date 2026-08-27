@@ -8,6 +8,8 @@
 import Foundation
 import Combine
 import GoogleSignIn
+import FacebookLogin
+import FirebaseAuth
 
 import FirebaseAuth
 @MainActor
@@ -85,5 +87,63 @@ extension AuthViewModel {
         
         let tokens = GIDSignInResultModel(idToken: idToken, accessToken: accessToken)
         try await AuthenticationManager.shared.signInWithGoogle(tokens:tokens)
+    }
+}
+//MARK: SignIn With Facebook
+extension AuthViewModel {
+
+    func signInFacebook() async {
+        Task {
+            do {
+                let loginManager = LoginManager()
+
+                let result: LoginManagerLoginResult = try await withCheckedThrowingContinuation { continuation in
+                    loginManager.logIn(permissions: ["public_profile", "email"], from: nil) { result, error in
+                        if let error {
+                            continuation.resume(throwing: error)
+                            return
+                        }
+                        guard let result, !result.isCancelled else {
+                            continuation.resume(throwing: URLError(.userCancelledAuthentication))
+                            return
+                        }
+                        continuation.resume(returning: result)
+                    }
+                }
+
+                guard let tokenString = AccessToken.current?.tokenString else {
+                    self.errorMessage = "Could not retrieve Facebook access token"
+                    return
+                }
+
+                let _ = try await AuthenticationManager.shared.signInWithFacebook(tokenString: tokenString)
+                self.logInsucessful = true
+
+            } catch {
+                print(error.localizedDescription)
+                self.errorMessage = "Unable to sign in with Facebook"
+            }
+        }
+    }
+
+    func signOutFacebook() {
+        LoginManager().logOut()
+    }
+}
+
+enum FacebookAuthError: LocalizedError {
+    case cancelled
+    case missingToken
+    case unknown(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .cancelled:
+            return "Facebook sign-in was cancelled."
+        case .missingToken:
+            return "Could not retrieve Facebook access token."
+        case .unknown(let message):
+            return message
+        }
     }
 }

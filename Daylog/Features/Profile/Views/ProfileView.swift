@@ -16,6 +16,7 @@ struct ProfileView: View {
     @State private var showUpdatePasswordView = false
     @State private var showUpdateEmailView = false
     @State private var selectedDestination: destination? = nil
+    @State private var showAlert = false
     var body: some View {
         ZStack {
             Color.dlBackground.ignoresSafeArea(.all)
@@ -39,6 +40,7 @@ struct ProfileView: View {
                         
                 }.padding(.horizontal)
             }
+            
         }
         .navigationDestination(isPresented: $showUpdatePasswordView) {
             UpdatePasswordView()
@@ -146,8 +148,16 @@ extension ProfileView {
                                 showAuthenticationView.toggle()
                             }
                         }
-                   
-                 
+                    Text("Delete Account")
+                        .font(.dmSans(20, weight: .regular))
+                        .foregroundStyle(.red)
+                        .onTapGesture {
+                            withAnimation {
+                                showAuthenticationView.toggle()
+                            }
+                            
+                        }
+                       
                 } header: {
                     Text("Account".capitalized)
                 }
@@ -164,6 +174,7 @@ extension ProfileView {
                 .listStyle(.insetGrouped)
                 .scrollDisabled(true)
                 .listSectionSpacing(0)
+            
         }
     }
  

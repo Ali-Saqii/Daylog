@@ -27,7 +27,6 @@
 		9A803180303F21790063F1DF /* Exceptions for "Daylog" folder in "Daylog" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Assets.xcassets,
 				"Fonts/DMSans-Black.ttf",
 				"Fonts/DMSans-Bold.ttf",
 				"Fonts/DMSans-Light.ttf",
@@ -72,18 +71,10 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		9A803179303F1D200063F1DF /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		9A9076F7303B3FC0007A1559 = {
 			isa = PBXGroup;
 			children = (
 				9A907702303B3FC0007A1559 /* Daylog */,
-				9A803179303F1D200063F1DF /* Frameworks */,
 				9A907701303B3FC0007A1559 /* Products */,
 			);
 			sourceTree = "<group>";

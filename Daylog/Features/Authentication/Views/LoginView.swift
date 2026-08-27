@@ -9,6 +9,8 @@ import SwiftUI
 import FirebaseAuth
 import GoogleSignIn
 import GoogleSignInSwift
+import FacebookLogin
+
 struct LoginView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     @EnvironmentObject var appState: AppState
@@ -67,14 +69,33 @@ struct LoginView: View {
                 }
                 .padding(.vertical)
             HStack{
+                Spacer()
                 GoogleSignInButton(viewModel: GoogleSignInButtonViewModel(scheme: .light, style: GoogleSignInButtonStyle.icon, state: .normal),action: {signInWithGoogle()})
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 5)
                             .stroke(Color.dlAccent,lineWidth: 1.5)
                     )
+                Spacer()
+                Button {
+                    Task {
+                        await viewModel.signInFacebook()
+                    }
+                } label: {
+                    Image("facebook")
+                        .renderingMode(.original)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 40, height: 40)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(Color.dlAccent, lineWidth: 1.5)
+                        )
+                }
+
+                Spacer()
             }.padding(.vertical)
-            
             HStack {
                 Text("Don't have an account?")
                     .foregroundStyle(Color.dlInkMuted)

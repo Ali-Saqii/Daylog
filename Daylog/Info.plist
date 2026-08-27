@@ -14,9 +14,30 @@
 				<string>com.googleusercontent.apps.118723158028-chrb5iu5hhd1gde6kmvk9oaud598nvud</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>Facebook SignIn</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb1968239120553004</string>
+			</array>
+		</dict>
 	</array>
+	<key>FacebookAppID</key>
+	<string>1968239120553004</string>
+	<key>FacebookClientToken</key>
+	<string>8841b9d1340d3140de3bfa3a46c92b53</string>
+	<key>FacebookDisplayName</key>
+	<string>DayLog</string>
 	<key>GIDClientID</key>
 	<string>118723158028-chrb5iu5hhd1gde6kmvk9oaud598nvud.apps.googleusercontent.com</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>DMSans-Black.ttf</string>

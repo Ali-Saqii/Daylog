@@ -44,4 +44,8 @@ final class ProfileViewModel: ObservableObject {
     func getUser()  throws {
         self.user = try AuthenticationManager.shared.getUser()
     }
+    
+    func deleteUser() async throws {
+        try await AuthenticationManager.shared.deleteAccount()
+    }
 }

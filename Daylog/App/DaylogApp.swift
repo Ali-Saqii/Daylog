@@ -9,7 +9,7 @@ import SwiftUI
 import CoreData
 import FirebaseCore
 import FirebaseAppCheck
-
+import FacebookCore
 
 @main
 
@@ -17,25 +17,22 @@ struct DaylogApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     let persistenceController = PersistenceController.shared
     @StateObject private var appState = AppState()
-
+    
     var body: some Scene {
         WindowGroup {
-                RootView()
-                    .environmentObject(appState)
+            RootView()
+                .environmentObject(appState)
+                .onOpenURL { url in
+                    ApplicationDelegate.shared.application(
+                        UIApplication.shared,
+                        open: url,
+                        sourceApplication: nil,
+                        annotation: nil
+                    )
+                }
         }
     }
 }
 
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-#if DEBUG
-    let providerFactory = AppCheckDebugProviderFactory()
-    AppCheck.setAppCheckProviderFactory(providerFactory)
-    #endif
-    FirebaseApp.configure()
-      print("configured firebase")
-    return true
-  }
-}
+
