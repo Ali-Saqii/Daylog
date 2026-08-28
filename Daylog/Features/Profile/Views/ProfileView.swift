@@ -24,6 +24,7 @@ struct ProfileView: View {
                 
                 ProfilePicView
                 AccountSectionView
+                
                 if let errorMessage = profileVM.errorMessage {
                     Text(errorMessage)
                         .font(.dmSans(20, weight: .regular))
@@ -34,14 +35,13 @@ struct ProfileView: View {
 
                     }
                 }
-                
-                PrimaryButton(title: "logOut") {
-                    logOut()
-                        
-                }.padding(.horizontal)
             }
             
-        }
+        }.onAppear(perform: {
+            Task {
+                try profileVM.getAuthProvider()
+            }
+        })
         .navigationDestination(isPresented: $showUpdatePasswordView) {
             UpdatePasswordView()
                 .environmentObject(profileVM)
@@ -126,28 +126,49 @@ extension ProfileView {
     }
     private var AccountSectionView: some View {
         VStack(spacing: 0){
-            List {
+            List() {
                 Section {
-                
+                    NavigationLink {
+                        Text("edit account")
+                    } label: {
                         RowView(image: "person", title: "Edit profile", text: "")
-                 
-
-                
+                    }
+                    if let provider = profileVM.authProvider,provider.contains(.email) {
                         RowView(image: "lock", title: "Change password", text: "")
-                        .onTapGesture {
-                            withAnimation{
-                                selectedDestination = .updatePassword
-                                showAuthenticationView.toggle()
+                            .onTapGesture {
+                                withAnimation{
+                                    selectedDestination = .updatePassword
+                                    showAuthenticationView.toggle()
+                                }
                             }
-                        }
-                 
                         RowView(image: "envelope", title: "Change email", text: "")
-                        .onTapGesture {
-                            withAnimation{
-                                selectedDestination = .updateEmail
-                                showAuthenticationView.toggle()
+                            .onTapGesture {
+                                withAnimation{
+                                    selectedDestination = .updateEmail
+                                    showAuthenticationView.toggle()
+                                }
                             }
+                    }
+                } header: {
+                    Text("Account".capitalized)
+                }
+                
+                
+                Section {
+                    RowView(image: "bell", title: "Daily Reminder", text: "on")
+                    RowView(image: "moon", title: "Appearance", text: "system")
+                    
+                } header: {
+                    Text("Preferences".capitalized)
+                }
+                Section {
+                    Text("logOut")
+                        .font(.dmSans(20, weight: .regular))
+                        .foregroundStyle(.green)
+                        .onTapGesture {
+                          logOut()
                         }
+
                     Text("Delete Account")
                         .font(.dmSans(20, weight: .regular))
                         .foregroundStyle(.red)
@@ -157,18 +178,10 @@ extension ProfileView {
                             }
                             
                         }
-                       
-                } header: {
-                    Text("Account".capitalized)
+                }header: {
+                    Text("".capitalized)
                 }
-                Section {
-                    RowView(image: "bell", title: "Daily Reminder", text: "on")
-                    RowView(image: "moon", title: "Appearance", text: "system")
                 
-                } header: {
-                    Text("Preferences".capitalized)
-                }
-           
             }.scrollContentBackground(.hidden)
                 .background(Color(red: 0.98, green: 0.96, blue: 0.93))
                 .listStyle(.insetGrouped)

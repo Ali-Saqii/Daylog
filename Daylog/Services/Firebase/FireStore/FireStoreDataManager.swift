@@ -8,6 +8,19 @@
 import Foundation
 import FirebaseFirestore
 
-class FireStoreDataManager {
+class UserDataManager {
+    static let shared  = UserDataManager()
     
+    private init () {}
+    
+    private let userCollection = Firestore.firestore().collection("users")
+    private func userDocument(userID: String) -> DocumentReference {
+        userCollection.document(userID)
+    }
+    
+    //MARK: Create DB user
+    
+    func createUser(user: AppUser) async throws {
+        try userDocument(userID: user.id).setData(from: user,merge: false)
+    }
 }

@@ -25,5 +25,5 @@ enum AuthProviderOption: String {
     
     case email = "password"
     case google = "google.com"
-    case apple = "apple.com"
+    case faceBook = "facebook.com"
 }

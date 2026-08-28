@@ -28,12 +28,14 @@ final class AuthViewModel: ObservableObject {
                 return
             }
             do {
-                let _ = try await  AuthenticationManager.shared.CreateUser(email: email, Password: password)
+                let authDataresult = try await  AuthenticationManager.shared.CreateUser(email: email, Password: password)
+                let user = AppUser(auth: authDataresult)
+                try await UserDataManager.shared.createUser(user: user)
                 self.SignUpsucessful = true
             }catch let error {
                 print(error.localizedDescription)
                 self.SignUpsucessful = true
-                self.errorMessage = "Unable to create account"
+                self.errorMessage = error.localizedDescription
             }
         }
     }
@@ -45,11 +47,10 @@ final class AuthViewModel: ObservableObject {
         Task {
             do {
                 let _ = try await AuthenticationManager.shared.sigInUser(email: email, Password: password)
+                
                 self.logInsucessful = true
             }catch let error {
-                print(error.localizedDescription)
-                self.logInsucessful = true
-                self.errorMessage = "Unable to login account"
+                self.errorMessage = error.localizedDescription
 
             }
         }
@@ -86,7 +87,9 @@ extension AuthViewModel {
         let accessToken = gidSignInResult.user.accessToken.tokenString
         
         let tokens = GIDSignInResultModel(idToken: idToken, accessToken: accessToken)
-        try await AuthenticationManager.shared.signInWithGoogle(tokens:tokens)
+        let authDataresult =  try await AuthenticationManager.shared.signInWithGoogle(tokens:tokens)
+        let user = AppUser(auth: authDataresult)
+        try await UserDataManager.shared.createUser(user: user)
     }
 }
 //MARK: SignIn With Facebook
@@ -116,7 +119,9 @@ extension AuthViewModel {
                     return
                 }
 
-                let _ = try await AuthenticationManager.shared.signInWithFacebook(tokenString: tokenString)
+                let authDataresult = try await AuthenticationManager.shared.signInWithFacebook(tokenString: tokenString)
+                let user = AppUser(auth: authDataresult)
+                try await UserDataManager.shared.createUser(user: user)
                 self.logInsucessful = true
 
             } catch {

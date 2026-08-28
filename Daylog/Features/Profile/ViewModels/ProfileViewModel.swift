@@ -14,6 +14,7 @@ final class ProfileViewModel: ObservableObject {
     @Published var errorMessage : String? = ""
     @Published var isSingOut = false
     @Published var user: AuthDataResultModel? = nil
+    @Published var authProvider: [AuthProviderOption]? = nil
     var onDismiss: (() -> Void)?
     func signOut() {
         do {
@@ -26,26 +27,24 @@ final class ProfileViewModel: ObservableObject {
     }
     
     func upDatePassword(password: String)async throws {
-       
                 try await AuthenticationManager.shared.updatePassword(password: password)
-              
             }
-        
-    
      func upDateEmail(email: String)async throws {
-            
                 try await AuthenticationManager.shared.updateEmail(email: email)
-           
-       
     }
     func reAuthenticateUser(email:String, password: String) async throws {
         try await AuthenticationManager.shared.sigInUser(email: email, Password: password)
     }
-    func getUser()  throws {
+    func getAuthenticatedUser()  throws {
         self.user = try AuthenticationManager.shared.getUser()
     }
     
     func deleteUser() async throws {
         try await AuthenticationManager.shared.deleteAccount()
+    }
+    //get auth Provider
+    
+    func getAuthProvider() throws {
+        self.authProvider = try AuthenticationManager.shared.getProvider()
     }
 }

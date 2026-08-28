@@ -106,3 +106,13 @@ extension AuthenticationManager {
         return try await signIn(crediential: credential)
     }
 }
+
+
+//MARK: Auth Providers
+//enum AuthProviderOption: String {
+//    
+//    case email = "password"
+//    case google = "google.com"
+//    case apple = "apple.com"
+//}
+
