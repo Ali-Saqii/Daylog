@@ -11,9 +11,9 @@ import SwiftUI
 
 @MainActor
 final class ProfileViewModel: ObservableObject {
+    @Published var user: AppUser? = nil
     @Published var errorMessage : String? = ""
     @Published var isSingOut = false
-    @Published var user: AuthDataResultModel? = nil
     @Published var authProvider: [AuthProviderOption]? = nil
     var onDismiss: (() -> Void)?
     func signOut() {
@@ -35,8 +35,8 @@ final class ProfileViewModel: ObservableObject {
     func reAuthenticateUser(email:String, password: String) async throws {
         try await AuthenticationManager.shared.sigInUser(email: email, Password: password)
     }
-    func getAuthenticatedUser()  throws {
-        self.user = try AuthenticationManager.shared.getUser()
+    func getAuthenticatedUser()  throws -> AuthDataResultModel {
+        return try AuthenticationManager.shared.getUser()
     }
     
     func deleteUser() async throws {
@@ -46,5 +46,17 @@ final class ProfileViewModel: ObservableObject {
     
     func getAuthProvider() throws {
         self.authProvider = try AuthenticationManager.shared.getProvider()
+    }
+    // get Db user
+    
+    func getUser() {
+        Task {
+            do{
+                let user = try getAuthenticatedUser()
+                self.user = try await UserDataManager.shared.getDBUser(userId: user.uid)
+            }catch let error {
+                self.errorMessage = error.localizedDescription
+            }
+        }
     }
 }

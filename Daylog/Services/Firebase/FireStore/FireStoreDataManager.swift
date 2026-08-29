@@ -23,4 +23,9 @@ class UserDataManager {
     func createUser(user: AppUser) async throws {
         try userDocument(userID: user.id).setData(from: user,merge: false)
     }
+    
+    // get dbUser
+    func getDBUser(userId:String) async throws -> AppUser{
+        return try await userDocument(userID: userId).getDocument(as:AppUser.self)
+    }
 }

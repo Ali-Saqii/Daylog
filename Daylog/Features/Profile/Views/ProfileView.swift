@@ -38,9 +38,7 @@ struct ProfileView: View {
             }
             
         }.onAppear(perform: {
-            Task {
-                try profileVM.getAuthProvider()
-            }
+            profileVM.getUser()
         })
         .navigationDestination(isPresented: $showUpdatePasswordView) {
             UpdatePasswordView()
@@ -64,58 +62,62 @@ extension ProfileView {
     
     private var ProfilePicView: some View {
         VStack {
-            
-            HStack {
-                AsyncImage(url: URL(string:""), scale: 100) { phase in
-                    switch phase {
-                    case (let img):
-                        img
-                            .resizable()
-                            .scaledToFill()
+            if let user = profileVM.user,
+               let photoUrl = user.photoUrl,
+               let email = user.email,let displayName = user.displayName,
+               let date = user.createdAt{
+                HStack {
+                    AsyncImage(url: URL(string:photoUrl), scale: 100) { phase in
+                        switch phase {
+                        case (let img):
+                            img
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 100, height: 100)
+                                .clipShape(Circle())
+                                .clipped()
+                        }
+                    } placeholder: {
+                        Text(displayName.initials!)
+                            .font(.dmSans(40, weight: .black))
+                            .foregroundStyle(.orange)
                             .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .clipped()
+                            .background(
+                                Circle()
+                                    .fill(.orange.opacity(0.3))
+                            )
                     }
-                } placeholder: {
-                    Text("SA")
-                        .font(.dmSans(40, weight: .black))
-                        .foregroundStyle(.orange)
-                        .frame(width: 100, height: 100)
-                        .background(
-                            Circle()
-                                .fill(.orange.opacity(0.3))
-                        )
+                    .overlay {
+                        Circle()
+                            .stroke(.orange,lineWidth: 2)
+                            .overlay(alignment: .bottomTrailing) {
+                                Circle()
+                                    .fill(.orange)
+                                    .frame(width: 25, height: 25)
+                                    .overlay {
+                                        Text("+")
+                                            .font(.dmSans(25, weight: .black))
+                                            .foregroundStyle(.white)
+                                        
+                                    }
+                            }
+                            .onTapGesture {
+                                print("Hii")
+                            }
+                    }
+                    Spacer()
+                    VStack(alignment:.leading) {
+                        Text (displayName.capitalized)
+                            .font(.dmSans(28, weight: .medium))
+                        Text (email)
+                            .font(.dmSans(20.5, weight: .black))
+                            .tint(.black.opacity(0.7))
+                        Text ("member since \((date).dayKey)".capitalized)
+                            .font(.headline)
+                            .foregroundStyle(.black.opacity(0.7))
+                    }
+                    Spacer()
                 }
-                .overlay {
-                    Circle()
-                        .stroke(.orange,lineWidth: 2)
-                        .overlay(alignment: .bottomTrailing) {
-                            Circle()
-                                .fill(.orange)
-                                .frame(width: 25, height: 25)
-                                .overlay {
-                                    Text("+")
-                                        .font(.dmSans(25, weight: .black))
-                                        .foregroundStyle(.white)
-                                    
-                                }
-                        }
-                        .onTapGesture {
-                            print("Hii")
-                        }
-                }
-                Spacer()
-                VStack(alignment:.leading) {
-                    Text ("Sadaqat ali".capitalized)
-                        .font(.dmSans(28, weight: .medium))
-                    Text ("email@example.com")
-                        .font(.dmSans(20.5, weight: .black))
-                        .tint(.black.opacity(0.7))
-                    Text (" Member since Aug 2026".capitalized)
-                        .font(.headline)
-                        .foregroundStyle(.black.opacity(0.7))
-                }
-                Spacer()
             }
             HStack(spacing:18) {
                     GridView(num: 3, title: "Habits")
@@ -129,7 +131,8 @@ extension ProfileView {
             List() {
                 Section {
                     NavigationLink {
-                        Text("edit account")
+                        EditProfileView()
+                            .environmentObject(profileVM)
                     } label: {
                         RowView(image: "person", title: "Edit profile", text: "")
                     }
