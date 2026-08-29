@@ -59,4 +59,18 @@ final class ProfileViewModel: ObservableObject {
             }
         }
     }
+    
+    //update display Name
+    
+    func updateUserName(displayName: String) {
+        guard let user else {return}
+        Task {
+            do{
+                try await UserDataManager.shared.upDateUserNamr(userID: user.id, displayName: displayName)
+                getUser()
+            }catch let error {
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
 }

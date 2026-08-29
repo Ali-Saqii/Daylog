@@ -28,4 +28,12 @@ class UserDataManager {
     func getDBUser(userId:String) async throws -> AppUser{
         return try await userDocument(userID: userId).getDocument(as:AppUser.self)
     }
+    
+    // update userName
+    func upDateUserNamr(userID:String,displayName: String) async throws {
+        let data :[String: Any] = [
+            AppUser.CodingKeys.displayName.rawValue : displayName
+        ]
+        try await userDocument(userID: userID).updateData(data)
+    }
 }
