@@ -78,7 +78,7 @@ extension ProfileView {
                                 .clipped()
                         }
                     } placeholder: {
-                        Text(displayName.initials!)
+                        Text(displayName.initials ?? "")
                             .font(.dmSans(40, weight: .black))
                             .foregroundStyle(.orange)
                             .frame(width: 100, height: 100)
