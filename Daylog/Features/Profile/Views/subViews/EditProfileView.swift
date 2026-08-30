@@ -14,17 +14,44 @@ struct EditProfileView: View {
         ZStack {
             Color.dlBackground.ignoresSafeArea()
             VStack {
-                AuthTextField(placeholder: displayName.isEmpty ? "Enter Display name": displayName, text: $displayName)
-                    .overlay(alignment: .trailing) {
-                        Text("change")
-                            .font(.dmSans(20, weight: .semiBold))
-                            .foregroundStyle(Color.dlAccent)
+                Section {
+                    AuthTextField(placeholder: displayName.isEmpty ? "Enter Display name": displayName, text: $displayName)
+                        .overlay(alignment: .trailing) {
+                            Text("change")
+                                .font(.dmSans(20, weight: .semiBold))
+                                .foregroundStyle(Color.dlAccent)
+                                .onTapGesture {
+                                    profileVm.updateUserName(displayName: displayName)
+                                }
+                                .padding(.horizontal)
+                        }
+                } header: {
+                    Text("Change Password")
+                        .foregroundStyle(Color.dlInkMuted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                Section {
+                    List {
+                      RowView(image: "link", title: "Link email & Password", text: "")
                             .onTapGesture {
-                                profileVm.updateUserName(displayName: displayName)
+                                
                             }
-                            .padding(.horizontal)
-                    }
-                Spacer()
+                        RowView(image: "link", title: "Link facebook Account", text: "")
+                            .onTapGesture {
+                                
+                            }
+                        RowView(image: "link", title: "Link Google Account", text: "")
+                            .onTapGesture {
+                                
+                            }
+                    }.listStyle(.plain)
+                        
+                } header: {
+                    Text("Link Your Accounts")
+                        .foregroundStyle(Color.dlInkMuted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+             Spacer()
             }.padding(.horizontal)
             if let errorMessage = profileVm.errorMessage {
                 Text(errorMessage)
@@ -38,6 +65,7 @@ struct EditProfileView: View {
             }
         }.onAppear {
             getUserDisplayNme()
+            getAuthProvider()
         }
         .navigationTitle("Edit your Profile")
         .navigationBarTitleDisplayMode(.inline)
@@ -58,5 +86,15 @@ extension EditProfileView {
             return
         }
         self.displayName = displayName
+    }
+    
+    private func getAuthProvider() {
+        Task {
+            do{
+               try profileVm.getAuthProvider()
+            }catch let error {
+                profileVm.errorMessage = error.localizedDescription
+            }
+        }
     }
 }
