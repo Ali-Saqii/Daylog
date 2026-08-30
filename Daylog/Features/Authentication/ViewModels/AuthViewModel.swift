@@ -34,7 +34,6 @@ final class AuthViewModel: ObservableObject {
                 self.SignUpsucessful = true
             }catch let error {
                 print(error.localizedDescription)
-                self.SignUpsucessful = true
                 self.errorMessage = error.localizedDescription
             }
         }
@@ -100,7 +99,7 @@ extension AuthViewModel {
             do {
                 let loginManager = LoginManager()
 
-                let result: LoginManagerLoginResult = try await withCheckedThrowingContinuation { continuation in
+                let _: LoginManagerLoginResult = try await withCheckedThrowingContinuation { continuation in
                     loginManager.logIn(permissions: ["public_profile", "email"], from: nil) { result, error in
                         if let error {
                             continuation.resume(throwing: error)
