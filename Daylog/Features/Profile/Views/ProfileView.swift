@@ -62,59 +62,61 @@ extension ProfileView {
     
     private var ProfilePicView: some View {
         VStack {
-            if let user = profileVM.user,
-               let photoUrl = user.photoUrl,
-               let email = user.email,let displayName = user.displayName,
-               let date = user.createdAt{
+            if let user = profileVM.user{
                 HStack {
-                    AsyncImage(url: URL(string:photoUrl), scale: 100) { phase in
-                        switch phase {
-                        case (let img):
-                            img
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .clipped()
+                    if let photoUrl = user.photoUrl {
+                        AsyncImage(url: URL(string: photoUrl)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(Circle())
+                                    .clipped()
+                            case .failure:
+                                DylogPlaceholderView()
+                            case .empty:
+                                DylogPlaceholderView()
+                            @unknown default:
+                                DylogPlaceholderView()
+                                
+                            }
                         }
-                    } placeholder: {
-                        Text(displayName.initials ?? "")
-                            .font(.dmSans(40, weight: .black))
-                            .foregroundStyle(.orange)
-                            .frame(width: 100, height: 100)
-                            .background(
-                                Circle()
-                                    .fill(.orange.opacity(0.3))
-                            )
-                    }
-                    .overlay {
-                        Circle()
-                            .stroke(.orange,lineWidth: 2)
-                            .overlay(alignment: .bottomTrailing) {
-                                Circle()
-                                    .fill(.orange)
-                                    .frame(width: 25, height: 25)
-                                    .overlay {
-                                        Text("+")
-                                            .font(.dmSans(25, weight: .black))
-                                            .foregroundStyle(.white)
+                        .overlay {
+                          overlayCntentView()
+                                .onTapGesture {
+                                    
+                                }
+                        }
+                       
+                    }else {
+                        DylogPlaceholderView()
+                            .overlay {
+                              overlayCntentView()
+                                    .onTapGesture {
                                         
                                     }
                             }
-                            .onTapGesture {
-                                print("Hii")
-                            }
+
                     }
                     Spacer()
                     VStack(alignment:.leading) {
-                        Text (displayName.capitalized)
-                            .font(.dmSans(28, weight: .medium))
-                        Text (email)
-                            .font(.dmSans(20.5, weight: .black))
-                            .tint(.black.opacity(0.7))
-                        Text ("member since \((date).dayKey)".capitalized)
-                            .font(.headline)
-                            .foregroundStyle(.black.opacity(0.7))
+                        if let displayName = user.displayName {
+                            Text (displayName.capitalized)
+                                .font(.dmSans(28, weight: .medium))
+                        }
+                        if let email = user.email {
+                            Text(email)
+                                .font(.dmSans(20.5, weight: .black))
+                                .tint(.black.opacity(0.7))
+                                .lineLimit(1)
+                        }
+                        if  let date = user.createdAt {
+                            Text ("member since \((date).dayKey)".capitalized)
+                                .font(.headline)
+                                .foregroundStyle(.black.opacity(0.7))
+                        }
                     }
                     Spacer()
                 }
@@ -159,7 +161,7 @@ extension ProfileView {
                 
                 Section {
                     RowView(image: "bell", title: "Daily Reminder", text: "on")
-                    RowView(image: "moon", title: "Appearance", text: "system")
+//                    RowView(image: "moon", title: "Appearance", text: "system")
                     
                 } header: {
                     Text("Preferences".capitalized)
