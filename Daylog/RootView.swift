@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  RootView.swift
 //  Daylog
 //
 //  Created by Mac mini on 10/08/2026.
