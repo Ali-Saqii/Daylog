@@ -107,12 +107,36 @@ extension AuthenticationManager {
     }
 }
 
+// Link Accounts
+extension AuthenticationManager {
+    func linkEmail(email: String ,password: String) async throws -> AuthDataResultModel {
+        let credientials = EmailAuthProvider.credential(withEmail: email, password: password)
+        
+        guard let user = Auth.auth().currentUser else{
+            throw URLError(.badURL)
+        }
+        let authDataResult = try await user.link(with: credientials)
+        return AuthDataResultModel(user: authDataResult.user)
+    }
+    
+    func linkFacebook(tokens: FacebookAuthResultModel) async throws -> AuthDataResultModel {
+        let credientials = FacebookAuthProvider.credential(withAccessToken: tokens.accessToken)
+        return try await linkcredientials(credientials: credientials)
+    }
+    
+    func linkGoogle(tokens: GIDSignInResultModel) async throws -> AuthDataResultModel {
+        let credientials = GoogleAuthProvider.credential(withIDToken: tokens.idToken, accessToken: tokens.accessToken)
+        return try await linkcredientials(credientials: credientials)
+    }
+    
+    private func linkcredientials(credientials:AuthCredential) async throws -> AuthDataResultModel{
+        guard let user = Auth.auth().currentUser else {
+            throw URLError(.badURL)
+        }
+        
+        let authDataResult = try await user.link(with: credientials)
+        return AuthDataResultModel(user: authDataResult.user)
+    }
+}
 
-//MARK: Auth Providers
-//enum AuthProviderOption: String {
-//    
-//    case email = "password"
-//    case google = "google.com"
-//    case apple = "apple.com"
-//}
 
