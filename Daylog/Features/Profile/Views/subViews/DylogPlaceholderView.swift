@@ -9,7 +9,13 @@ import SwiftUI
 
 struct DylogPlaceholderView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Image("daylogPlaceholderImage")
+            .resizable()
+            .scaledToFill()
+            .frame(width: 100, height: 100)
+            .clipShape(Circle())
+            .clipped()
+        
     }
 }
 
