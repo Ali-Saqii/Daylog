@@ -73,4 +73,21 @@ final class ProfileViewModel: ObservableObject {
             }
         }
     }
+    
+    //MARK: Link Accounts
+    func emailAndPassword() {
+        Task {
+       
+        }
+    }
+    func linkGoogle() {
+        Task {
+       
+        }
+    }
+    func linkFacebook() {
+        Task {
+       
+        }
+    }
 }
