@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+struct FacebookAuthResultModel {
+    let accessToken: String
+    let name: String?
+    let email: String?
+}
