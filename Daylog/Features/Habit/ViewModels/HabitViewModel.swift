@@ -6,3 +6,9 @@
 //
 
 import Foundation
+import Combine
+
+@MainActor
+final class HabitViewModel: ObservableObject {
+     init() {}
+}
