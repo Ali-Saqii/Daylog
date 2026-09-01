@@ -10,7 +10,7 @@ import SwiftUI
 
 struct AddEditHabitView: View {
     @Environment(\.dismiss) private var dismiss
-
+    @EnvironmentObject var habitViewModel: HabitViewModel
     let habit: Habit?
     let onSave: (Habit) -> Void
 
@@ -27,49 +27,65 @@ struct AddEditHabitView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color.dlBackground.ignoresSafeArea(.all)
-            Form {
-                Section("Habit") {
-                    TextField("Title", text: $title)
-
-                    HStack {
-                        Text("Emoji")
-                        Spacer()
-                        TextField("Optional", text: $emoji)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 80)
+        NavigationStack {
+            ZStack {
+                Color.dlBackground.ignoresSafeArea(.all)
+                Form {
+                    Section("Habit") {
+                        TextField("Title", text: $title)
+                        
+                        HStack {
+                            Text("Emoji")
+                            Spacer()
+                            TextField("Optional", text: $emoji)
+                                .multilineTextAlignment(.trailing)
+                                .frame(width: 80)
+                        }
                     }
-                }
-
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(.title)
-                        .foregroundStyle(.red)
-                }
-            }.scrollContentBackground(.hidden)
-                .background(Color.dlBackground)
-            .navigationTitle(habit == nil ? "New Habit" : "Edit Habit")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(isSaving ? "Saving…" : "Save") {
-                        ()
+                    
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .font(.title)
+                            .foregroundStyle(.red)
                     }
-                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
-                }
+                }.scrollContentBackground(.hidden)
+                    .background(Color.dlBackground)
+                    .navigationTitle(habit == nil ? "New Habit" : "Edit Habit")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") { dismiss() }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button(isSaving ? "Saving…" : "Save") {
+                               addHabit()
+                            }
+                            .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
+                        }
+                    }
             }
         }
     }
 
+private func addHabit() {
+    Task {
+        do{
+            isSaving = true
+            try await habitViewModel.addHabit(title: title, emoji: emoji)
+            isSaving = false
+            dismiss()
+        }catch let error {
+            isSaving = false
+            self.errorMessage = error.localizedDescription
+        }
+    }
 
+}
 }
 
 #Preview {
     NavigationStack {
         AddEditHabitView(habit: nil) { _ in }
+            .environmentObject(HabitViewModel())
     }
 }
