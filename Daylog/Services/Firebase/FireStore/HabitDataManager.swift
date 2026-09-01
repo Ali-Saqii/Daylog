@@ -30,7 +30,7 @@ class HabitDataManager {
 extension HabitDataManager {
     //Create habit
     
-    func createHabit(userId:String,title: String,emoji:String,isArchived:Bool)async throws {
+    func createHabit(userId:String,title: String,emoji:String)async throws {
         let document = habitsCollection(userId: userId).document()
         let documentId = document.documentID
         
@@ -41,7 +41,7 @@ extension HabitDataManager {
             Habit.CodingKeys.createdAt.rawValue: Timestamp(),
             Habit.CodingKeys.currentStreak.rawValue: 0,
             Habit.CodingKeys.longestStreak.rawValue: 0,
-            Habit.CodingKeys.isArchived.rawValue : isArchived
+            Habit.CodingKeys.isArchived.rawValue : false
         ]
         try await document.setData(data, merge: false)
     }
