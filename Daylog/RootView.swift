@@ -12,23 +12,30 @@ import CoreData
 struct RootView: View {
     @EnvironmentObject private var appState: AppState
     @StateObject var AuthVm = AuthViewModel()
+    @State var showSplashScreen = false
     var body: some View {
         ZStack {
-            if appState.isLoggedIn {
-                NavigationStack {
-                    MainTabView()
-                        .environmentObject(appState)
+            if !showSplashScreen {
+                if appState.isLoggedIn {
+                    NavigationStack {
+                        MainTabView()
+                            .environmentObject(appState)
+                    }
+                } else {
+                    NavigationStack {
+                        AuthView()
+                            .environmentObject(AuthVm)
+                            .environmentObject(appState)
+                    }
                 }
             } else {
-                NavigationStack {
-                    AuthView()
-                        .environmentObject(AuthVm)
-                        .environmentObject(appState)
-                }
+                SplashScreenView(isActive: $showSplashScreen)
             }
         }.onAppear {
+            showSplashScreen = true
             let authUser = try? AuthenticationManager.shared.getUser()
             appState.isLoggedIn = authUser != nil ? true : false
+            showSplashScreen = false
         }
     }
 }

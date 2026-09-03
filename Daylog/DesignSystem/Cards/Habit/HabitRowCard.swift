@@ -22,7 +22,7 @@ struct HabitRowCard: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(habit.title)
-                    .font(.dmSans(40, weight: .bold))
+                    .font(.dmSans(20, weight: .semiBold))
                     .foregroundStyle(Color.dlInk)
                 if habit.longestStreak > 0 {
                     Text("Best: \(habit.longestStreak) days")
