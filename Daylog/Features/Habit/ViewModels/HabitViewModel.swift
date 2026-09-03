@@ -31,7 +31,16 @@ final class HabitViewModel: ObservableObject {
     }
 
     func startListening() {
-
+        listenerTask = Task {
+            do {
+                let authDataResult = try AuthenticationManager.shared.getUser()
+                HabitDataManager.shared.addListernerForAllHabits(userId: authDataResult.uid) {[weak self] habits in
+                    self?.habits = habits
+                }
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
     }
 
     private func refreshTodayStatus(userId: String, habits: [Habit]) async {
@@ -39,7 +48,14 @@ final class HabitViewModel: ObservableObject {
     }
 
     func toggleCompletion(_ habit: Habit) {
-        
+//        Task {
+//            do {
+//                let authDataResult = try AuthenticationManager.shared.getUser()
+//                try await HabitDataManager.shared.(userId: authDataResult.uid, habitId: habit.id)
+//            }catch {
+//                errorMessage = error.localizedDescription
+//            }
+//        }
     }
 
     func addHabit(title: String, emoji: String?) async throws {
@@ -51,7 +67,12 @@ final class HabitViewModel: ObservableObject {
 
     func deleteHabit(_ habit: Habit) {
         Task {
-         
+            do {
+                let authDataResult = try AuthenticationManager.shared.getUser()
+                try await HabitDataManager.shared.deleteHabit(userId: authDataResult.uid, habitId: habit.id)
+            }catch {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 
@@ -59,3 +80,16 @@ final class HabitViewModel: ObservableObject {
         listenerTask?.cancel()
     }
 }
+
+
+//    func getHabites() {
+//            Task {
+//                do {
+//                    let authDataResult = try AuthenticationManager.shared.getUser()
+//                    self.habits = try await HabitDataManager.shared.getHabits(userId: authDataResult.uid)
+//                } catch {
+//                    print("Error:\(error)")
+//                    self.errorMessage = error.localizedDescription
+//                }
+//            }
+//    }

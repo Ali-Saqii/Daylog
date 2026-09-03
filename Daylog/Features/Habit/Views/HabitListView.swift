@@ -22,7 +22,9 @@ struct HabitListView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
                 .padding(.bottom, 40)
-            }
+            }.onAppear(perform: {
+                viewModel.startListening()
+            })
             .safeAreaInset(edge: .bottom, alignment: .listRowSeparatorTrailing, spacing: 60, content: {
                 Button {
                     showingAddHabit = true
@@ -73,7 +75,7 @@ struct HabitListView: View {
     // MARK: - Habits list
     private var habitsCard: some View {
         VStack(spacing: 0) {
-            if viewModel.habits.isEmpty && !viewModel.isLoading {
+            if viewModel.habits.isEmpty {
                 EmptyStateView(
                     icon: "list.bullet", title: "No habits yet",
                     message: "Tap + to add your first habit."

@@ -65,4 +65,48 @@ extension HabitDataManager {
          ]
          try await habitDocument(userId: userId, habitId: habitId).updateData(data)
      }
+    // Fetch Habits
+    func getHabits(userId:String) async throws -> [Habit]{
+        return try await habitsCollection(userId: userId).getAllHabits(as: Habit.self)
+    }
+    func addListernerForAllHabits(userId: String,completion: @escaping (_ habits: [Habit]) -> Void) {
+        habitsCollection(userId: userId).addSnapshotListener { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {
+                print("no documents")
+                return
+            }
+            
+            let habits: [Habit] = documents.compactMap({ try? $0.data(as: Habit.self)})
+            completion(habits)
+        }
+    }
+}
+    
+extension Query {
+    //    func getAllProducts2<T>(as: T.Type) async throws -> [T] where T : Decodable {
+    //        let snapShot = try await self.getDocuments()
+    //        return try snapShot.documents.map { document in
+    //            try document.data(as: T.self)
+    //        }
+    //    }
+    func getAllHabits<T>(as type: T.Type) async throws -> [T] where T : Decodable {
+        try await getAllHabitsWithSnapshot(as: type).0
+    }
+    func getAllHabitsWithSnapshot<T>(as: T.Type) async throws -> ([T] , DocumentSnapshot?) where T : Decodable {
+        let snapShot = try await self.getDocuments()
+        let habits =  try snapShot.documents.map { document in
+            try document.data(as: T.self)
+        }
+        return (habits, snapShot.documents.last)
+    }
+    
+    func startOptionally(afterDocument lastDocument: DocumentSnapshot?) -> Query {
+        guard let lastDocument else { return self }
+        return self.start(afterDocument: lastDocument)
+    }
+    func aggregateCount() async throws -> Int {
+        let snapshot = try await self.count.getAggregation(source: .server)
+        return Int(truncating: snapshot.count)
+    }
+    
 }
