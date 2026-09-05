@@ -12,7 +12,7 @@ struct HabitListView: View {
     @State private var showingAddHabit = false
     @State private var newHabitTitle = ""
     @State private var newHabitEmoji = ""
-    
+
     var body: some View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
@@ -42,19 +42,17 @@ struct HabitListView: View {
             .background(Color.dlBackground.ignoresSafeArea())
             .task {}
             .sheet(isPresented: $showingAddHabit) {
-                AddEditHabitView(habit: nil, onSave: { _ in})
+                AddEditHabitView(habit: nil)
                     .environmentObject(viewModel)
                 .presentationDetents([.large])
-                    
             }
     }
     
     // MARK: - Stats
     private var statsRow: some View {
         HStack(spacing: 12) {
-            statCard(value: "", label: "")
-            statCard(value: "", label: "")
-            
+            statCard(value: "\(viewModel.completedTodayCount)", label: "Done Today")
+            statCard(value: "\(viewModel.bestStreak)", label: "Best Streak", accent: true)
         }
     }
     
@@ -93,11 +91,6 @@ struct HabitListView: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .swipeActions(edge: .trailing) {
-                        Button("Delete", role: .destructive) {
-                            viewModel.deleteHabit(habit)
-                        }
-                    }
                     
                     if index < viewModel.habits.count - 1 {
                         Divider().background(Color.dlDivider).padding(.leading, 50)
@@ -105,15 +98,13 @@ struct HabitListView: View {
                 }
             }
         }
-        .padding(.horizontal, 12)
         .background(RoundedRectangle(cornerRadius: 16).fill(Color.dlSurface))
     }
-    
+
 }
 
 #Preview {
     NavigationStack {
-        
         HabitListView()
     }
 }

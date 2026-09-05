@@ -34,8 +34,11 @@ final class HabitViewModel: ObservableObject {
         listenerTask = Task {
             do {
                 let authDataResult = try AuthenticationManager.shared.getUser()
-                HabitDataManager.shared.addListernerForAllHabits(userId: authDataResult.uid) {[weak self] habits in
-                    self?.habits = habits
+                HabitDataManager.shared.addListernerForAllHabits(userId: authDataResult.uid) { [weak self] habits in
+                    guard let self else { return }
+                    self.habits = habits
+                    // Refresh today's completion status every time the habits list changes
+                    Task { await self.refreshTodayStatus(userId: authDataResult.uid, habits: habits) }
                 }
             } catch {
                 errorMessage = error.localizedDescription
@@ -43,19 +46,38 @@ final class HabitViewModel: ObservableObject {
         }
     }
 
+    /// Fetches today's log for every habit concurrently and populates `completedToday`.
     private func refreshTodayStatus(userId: String, habits: [Habit]) async {
-       
+        await withTaskGroup(of: (String, Bool).self) { group in
+            for habit in habits {
+                group.addTask {
+                    let log = try? await HabitDataManager.shared.getTodayLog(
+                        userId: userId,
+                        habitId: habit.id
+                    )
+                    return (habit.id, log?.completed ?? false)
+                }
+            }
+            for await (habitId, isCompleted) in group {
+                completedToday[habitId] = isCompleted
+            }
+        }
     }
 
     func toggleCompletion(_ habit: Habit) {
-//        Task {
-//            do {
-//                let authDataResult = try AuthenticationManager.shared.getUser()
-//                try await HabitDataManager.shared.(userId: authDataResult.uid, habitId: habit.id)
-//            }catch {
-//                errorMessage = error.localizedDescription
-//            }
-//        }
+        Task {
+            do {
+                let authDataResult = try AuthenticationManager.shared.getUser()
+                try await HabitDataManager.shared.toggleHabitLog(
+                    userId: authDataResult.uid,
+                    habitId: habit.id
+                )
+                // Refresh this habit's today status after toggle
+                await refreshTodayStatus(userId: authDataResult.uid, habits: [habit])
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
     }
 
     func addHabit(title: String, emoji: String?) async throws {
@@ -76,6 +98,13 @@ final class HabitViewModel: ObservableObject {
         }
     }
 
+    func updateHabit(_ habitID:String, _ habitTitle: String, _ HabitEmoji:String) async throws {
+                let user = try AuthenticationManager.shared.getUser()
+                try await HabitDataManager.shared.updateHabitFields(userId: user.uid, habitID: habitID, habitTitle: habitTitle, HabitEmoji: HabitEmoji)
+           
+        
+    }
+    
     deinit {
         listenerTask?.cancel()
     }

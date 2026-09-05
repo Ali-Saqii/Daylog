@@ -12,16 +12,13 @@ struct AddEditHabitView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var habitViewModel: HabitViewModel
     let habit: Habit?
-    let onSave: (Habit) -> Void
-
     @State private var title: String
     @State private var emoji: String
     @State private var isSaving = false
     @State private var errorMessage: String?
 
-    init(habit: Habit?, onSave: @escaping (Habit) -> Void) {
+    init(habit: Habit?) {
         self.habit = habit
-        self.onSave = onSave
         _title = State(initialValue: habit?.title ?? "")
         _emoji = State(initialValue: habit?.emoji ?? "")
     }
@@ -58,7 +55,7 @@ struct AddEditHabitView: View {
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button(isSaving ? "Saving…" : "Save") {
-                               addHabit()
+                                addAndUpdateHabit()
                             }
                             .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
                         }
@@ -66,26 +63,50 @@ struct AddEditHabitView: View {
             }
         }
     }
-
-private func addHabit() {
-    Task {
-        do{
-            isSaving = true
-            try await habitViewModel.addHabit(title: title, emoji: emoji)
-            isSaving = false
-            dismiss()
-        }catch let error {
-            isSaving = false
-            self.errorMessage = error.localizedDescription
+    func addAndUpdateHabit() {
+        if habit == nil {
+            addHabit()
+        }else if habit != nil {
+            updateHabit()
         }
     }
+    func updateHabit() {
+        guard let habit = habit else {
+            return
+        }
+        let newTitle = !title.isEmpty ? title : habit.title
+        let newEmoji = !emoji.isEmpty ? emoji : habit.emoji
+        Task {
+            do{
+                isSaving = true
+                try await habitViewModel.updateHabit(habit.id, newTitle, newEmoji ?? "")
+                isSaving = false
+                dismiss()
+            } catch let error{
+                habitViewModel.errorMessage = error.localizedDescription
+                isSaving = false
 
-}
+            }
+        }
+    }
+    func addHabit() {
+        Task {
+            do{
+                isSaving = true
+                try await habitViewModel.addHabit(title: title, emoji: emoji)
+                isSaving = false
+                dismiss()
+            } catch let error{
+                habitViewModel.errorMessage = error.localizedDescription
+                isSaving = false
+            }
+        }
+    }
 }
 
 #Preview {
     NavigationStack {
-        AddEditHabitView(habit: nil) { _ in }
+        AddEditHabitView(habit: nil)
             .environmentObject(HabitViewModel())
     }
 }

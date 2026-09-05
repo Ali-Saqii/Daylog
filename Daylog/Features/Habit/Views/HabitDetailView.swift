@@ -13,22 +13,38 @@ struct HabitDetailView: View {
     @ObservedObject var viewModel: HabitViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeleteConfirmation = false
+    @State private var showingEditHabit = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                header
-                streakStats
-                toggleTodayButton
-                deleteButton
+        ZStack {
+            Color.dlBackground.ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    header
+                    streakStats
+                    toggleTodayButton
+                    deleteButton
+                }
+                .padding(20)
             }
-            .padding(20)
+            .navigationTitle("habit Details")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showingEditHabit) {
+                AddEditHabitView(habit: habit)
+                    .environmentObject(viewModel)
+                .presentationDetents([.large])
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Image(systemName: "pencil")
+                        .font(.headline)
+                        .onTapGesture {
+                            showingEditHabit.toggle()
+                        }
+                }
+            }
         }
-        .background(Color.dlBackground.ignoresSafeArea())
-        .navigationTitle("Habit")
-        .navigationBarTitleDisplayMode(.inline)
     }
-
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("\(habit.title) \(habit.emoji ?? "")")
@@ -89,7 +105,7 @@ struct HabitDetailView: View {
                 viewModel.deleteHabit(habit)
                 dismiss()
             }
-            Button("Cancel", role: .cancel) {}
+            Button("Cancel", role: .cancel) {dismiss()}
         }
     }
 }

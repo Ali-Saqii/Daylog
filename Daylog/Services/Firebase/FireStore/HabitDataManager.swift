@@ -59,11 +59,13 @@ extension HabitDataManager {
     }
     
     // update habitTitle
-    func updateHabitTitle(userId: String, habitId: String, newTitle: String) async throws {
+    func updateHabitFields(userId: String, habitID: String,habitTitle: String , HabitEmoji: String) async throws {
+        guard  !userId.isEmpty  else { return  }
          let data: [String: Any] = [
-             Habit.CodingKeys.title.rawValue: newTitle
+            Habit.CodingKeys.title.rawValue: habitTitle,
+            Habit.CodingKeys.emoji.rawValue: HabitEmoji
          ]
-         try await habitDocument(userId: userId, habitId: habitId).updateData(data)
+        try await habitDocument(userId: userId, habitId: habitID).updateData(data)
      }
     // Fetch Habits
     func getHabits(userId:String) async throws -> [Habit]{
@@ -79,6 +81,105 @@ extension HabitDataManager {
             let habits: [Habit] = documents.compactMap({ try? $0.data(as: Habit.self)})
             completion(habits)
         }
+    }
+
+    // MARK: - Habit Logs (toggle completion)
+
+    /// Fetches the log document for today. Returns nil if it doesn't exist yet.
+    func getTodayLog(userId: String, habitId: String) async throws -> HabitLog? {
+        let dayKey = Date().dayKey
+        let doc = habitLogsCollection(userId: userId, habitId: habitId).document(dayKey)
+        let snapshot = try await doc.getDocument()
+        guard snapshot.exists else { return nil }
+        return try snapshot.data(as: HabitLog.self)
+    }
+
+    /// Toggles today's completion for a habit and recalculates streaks.
+    func toggleHabitLog(userId: String, habitId: String) async throws {
+        let dayKey = Date().dayKey
+        let logDoc = habitLogsCollection(userId: userId, habitId: habitId).document(dayKey)
+        let snapshot = try await logDoc.getDocument()
+
+        let newCompleted: Bool
+        if snapshot.exists, let log = try? snapshot.data(as: HabitLog.self) {
+            // Flip existing value
+            newCompleted = !log.completed
+        } else {
+            // First time tapping today — mark complete
+            newCompleted = true
+        }
+
+        let logData: [String: Any] = [
+            HabitLog.CodingKeys.dayKey.rawValue: dayKey,
+            HabitLog.CodingKeys.completed.rawValue: newCompleted,
+            HabitLog.CodingKeys.completedAt.rawValue: newCompleted ? Timestamp() : NSNull()
+        ]
+        try await logDoc.setData(logData, merge: false)
+
+        // Recalculate and persist streaks after every toggle
+        try await recalculateAndSaveStreaks(userId: userId, habitId: habitId)
+    }
+
+    /// Fetches all logs for a habit, sorted ascending by dayKey, used for streak calculation.
+    func getAllLogs(userId: String, habitId: String) async throws -> [HabitLog] {
+        let snapshot = try await habitLogsCollection(userId: userId, habitId: habitId)
+            .order(by: HabitLog.CodingKeys.dayKey.rawValue, descending: false)
+            .getDocuments()
+        return snapshot.documents.compactMap { try? $0.data(as: HabitLog.self) }
+    }
+
+    /// Calculates currentStreak and longestStreak from all logs and writes them back to the habit doc.
+    private func recalculateAndSaveStreaks(userId: String, habitId: String) async throws {
+        let logs = try await getAllLogs(userId: userId, habitId: habitId)
+        let completedKeys = Set(logs.filter { $0.completed }.map { $0.dayKey })
+
+        var currentStreak = 0
+        var longestStreak = 0
+        var runningStreak = 0
+
+        // Walk backwards from today to count currentStreak
+        var checkDate = Date()
+        while completedKeys.contains(checkDate.dayKey) {
+            currentStreak += 1
+            checkDate = Calendar.current.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate
+        }
+
+        // Walk all completed days in order to find longestStreak
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let sortedKeys = completedKeys.sorted()
+        var prevDate: Date? = nil
+        for key in sortedKeys {
+            guard let date = formatter.date(from: key) else { continue }
+            if let prev = prevDate, date.daysSince(prev) == 1 {
+                runningStreak += 1
+            } else {
+                runningStreak = 1
+            }
+            longestStreak = max(longestStreak, runningStreak)
+            prevDate = date
+        }
+
+        let data: [String: Any] = [
+            Habit.CodingKeys.currentStreak.rawValue: currentStreak,
+            Habit.CodingKeys.longestStreak.rawValue: longestStreak
+        ]
+        try await habitDocument(userId: userId, habitId: habitId).updateData(data)
+    }
+
+    // MARK: - Profile Stats
+
+    /// Server-side count of active (non-archived) habits for a user.
+    func getHabitCount(userId: String) async throws -> Int {
+        return try await habitsCollection(userId: userId)
+            .whereField(Habit.CodingKeys.isArchived.rawValue, isEqualTo: false)
+            .aggregateCount()
+    }
+
+    /// Highest `longestStreak` across all habits for a user.
+    func getBestStreak(userId: String) async throws -> Int {
+        let habits = try await getHabits(userId: userId)
+        return habits.map { $0.longestStreak }.max() ?? 0
     }
 }
     
