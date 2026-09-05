@@ -22,7 +22,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
-        AppEvents.shared.activateApp()
+        // AppEvents.shared.activateApp() is disabled to prevent blocked API access log
     }
     
 }

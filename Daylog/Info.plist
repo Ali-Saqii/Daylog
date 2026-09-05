@@ -33,6 +33,10 @@
 	<string>DayLog</string>
 	<key>GIDClientID</key>
 	<string>118723158028-chrb5iu5hhd1gde6kmvk9oaud598nvud.apps.googleusercontent.com</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<false/>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
