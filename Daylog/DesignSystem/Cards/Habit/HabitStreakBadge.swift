@@ -11,11 +11,11 @@ struct HabitStreakBadge: View {
     let streak: Int
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 3) {
             Image(systemName: "flame.fill")
-                .font(.caption)
+                .font(.system(size: 10))
             Text("\(streak)")
-                .font(.dmSans(20, weight: .bold))
+                .font(.dmSans(11, weight: .bold))
         }
         .foregroundStyle(streak > 0 ? Color.dlAccent : .secondary)
         .padding(.horizontal, 8)
