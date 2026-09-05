@@ -8,6 +8,9 @@
 import Foundation
 import Combine
 import SwiftUI
+import GoogleSignIn
+import FacebookLogin
+import FacebookCore
 
 struct ProfileStats {
     var habitCount: Int = 0
@@ -105,20 +108,78 @@ final class ProfileViewModel: ObservableObject {
         }
     }
     
-    //MARK: Link Accounts
-    func emailAndPassword() {
+    //MARK: - Link Accounts
+    func linkEmailAndPassword(email: String, password: String) {
         Task {
-       
+            do {
+                let authDataResult = try await AuthenticationManager.shared.linkEmail(email: email, password: password)
+                let updatedUser = AppUser(auth: authDataResult)
+                try await UserDataManager.shared.createUser(user: updatedUser)
+                try getAuthProvider()
+                getUser()
+            } catch {
+                self.errorMessage = error.localizedDescription
+            }
         }
     }
+
     func linkGoogle() {
         Task {
-       
+            do {
+                guard let topVC = Utilities.shared.topViewController() else {
+                    throw URLError(.cannotFindHost)
+                }
+                let gidSignInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: topVC)
+                guard let idToken = gidSignInResult.user.idToken?.tokenString else {
+                    throw URLError(.badServerResponse)
+                }
+                let accessToken = gidSignInResult.user.accessToken.tokenString
+                let tokens = GIDSignInResultModel(idToken: idToken, accessToken: accessToken)
+                let authDataResult = try await AuthenticationManager.shared.linkGoogle(tokens: tokens)
+                let updatedUser = AppUser(auth: authDataResult)
+                try await UserDataManager.shared.createUser(user: updatedUser)
+                try getAuthProvider()
+                getUser()
+            } catch {
+                self.errorMessage = error.localizedDescription
+            }
         }
     }
+
     func linkFacebook() {
         Task {
-       
+            do {
+                let loginManager = LoginManager()
+                let _: LoginManagerLoginResult = try await withCheckedThrowingContinuation { continuation in
+                    loginManager.logIn(permissions: ["public_profile", "email"], from: nil) { result, error in
+                        if let error {
+                            continuation.resume(throwing: error)
+                            return
+                        }
+                        guard let result, !result.isCancelled else {
+                            continuation.resume(throwing: URLError(.userCancelledAuthentication))
+                            return
+                        }
+                        continuation.resume(returning: result)
+                    }
+                }
+                guard let tokenString = AccessToken.current?.tokenString else {
+                    self.errorMessage = "Could not retrieve Facebook access token"
+                    return
+                }
+                let fbResult = FacebookAuthResultModel(accessToken: tokenString, name: nil, email: nil)
+                let authDataResult = try await AuthenticationManager.shared.linkFacebook(tokens: fbResult)
+                let updatedUser = AppUser(auth: authDataResult)
+                try await UserDataManager.shared.createUser(user: updatedUser)
+                try getAuthProvider()
+                getUser()
+            } catch {
+                self.errorMessage = error.localizedDescription
+            }
         }
+    }
+
+    func isProviderLinked(_ option: AuthProviderOption) -> Bool {
+        authProvider?.contains(option) ?? false
     }
 }

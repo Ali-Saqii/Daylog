@@ -10,6 +10,9 @@ import SwiftUI
 struct EditProfileView: View {
     @EnvironmentObject var profileVm : ProfileViewModel
     @State private var displayName = ""
+    @State private var showLinkEmailAlert = false
+    @State private var linkEmail = ""
+    @State private var linkPassword = ""
     var body: some View {
         ZStack {
             Color.dlBackground.ignoresSafeArea()
@@ -26,23 +29,38 @@ struct EditProfileView: View {
                                 .padding(.horizontal)
                         }
                 } header: {
-                    Text("Change Password")
+                    Text("Display Name")
                         .foregroundStyle(Color.dlInkMuted)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 Section {
                     List {
-                      RowView(image: "link", title: "Link email & Password", text: "")
+                        let isEmailLinked = profileVm.isProviderLinked(.email)
+                        let isFacebookLinked = profileVm.isProviderLinked(.faceBook)
+                        let isGoogleLinked = profileVm.isProviderLinked(.google)
+
+                        RowView(image: "link", title: "Link email & Password", text: isEmailLinked ? "Linked" : "")
+                            .contentShape(Rectangle())
                             .onTapGesture {
-                                
+                                if !isEmailLinked {
+                                    linkEmail = ""
+                                    linkPassword = ""
+                                    showLinkEmailAlert = true
+                                }
                             }
-                        RowView(image: "link", title: "Link facebook Account", text: "")
+                        RowView(image: "link", title: "Link facebook Account", text: isFacebookLinked ? "Linked" : "")
+                            .contentShape(Rectangle())
                             .onTapGesture {
-                                
+                                if !isFacebookLinked {
+                                    profileVm.linkFacebook()
+                                }
                             }
-                        RowView(image: "link", title: "Link Google Account", text: "")
+                        RowView(image: "link", title: "Link Google Account", text: isGoogleLinked ? "Linked" : "")
+                            .contentShape(Rectangle())
                             .onTapGesture {
-                                
+                                if !isGoogleLinked {
+                                    profileVm.linkGoogle()
+                                }
                             }
                     }.listStyle(.plain)
                         
@@ -69,6 +87,18 @@ struct EditProfileView: View {
         }
         .navigationTitle("Edit your Profile")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Link Email & Password", isPresented: $showLinkEmailAlert) {
+            TextField("Email", text: $linkEmail)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            SecureField("Password", text: $linkPassword)
+            Button("Link") {
+                profileVm.linkEmailAndPassword(email: linkEmail, password: linkPassword)
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Enter the email and password you would like to link to your account.")
+        }
     }
 }
 
