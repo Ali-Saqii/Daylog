@@ -33,41 +33,44 @@ struct EditProfileView: View {
                         .foregroundStyle(Color.dlInkMuted)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                Section {
-                    List {
-                        let isEmailLinked = profileVm.isProviderLinked(.email)
-                        let isFacebookLinked = profileVm.isProviderLinked(.faceBook)
-                        let isGoogleLinked = profileVm.isProviderLinked(.google)
+                let isEmailLinked = profileVm.isProviderLinked(.email)
+                let isFacebookLinked = profileVm.isProviderLinked(.faceBook)
+                let isGoogleLinked = profileVm.isProviderLinked(.google)
+                let hasUnlinkedProviders = !isEmailLinked || !isFacebookLinked || !isGoogleLinked
 
-                        RowView(image: "link", title: "Link email & Password", text: isEmailLinked ? "Linked" : "")
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if !isEmailLinked {
-                                    linkEmail = ""
-                                    linkPassword = ""
-                                    showLinkEmailAlert = true
-                                }
+                if hasUnlinkedProviders {
+                    Section {
+                        List {
+                            if !isEmailLinked {
+                                RowView(image: "link", title: "Link email & Password", text: "")
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        linkEmail = ""
+                                        linkPassword = ""
+                                        showLinkEmailAlert = true
+                                    }
                             }
-                        RowView(image: "link", title: "Link facebook Account", text: isFacebookLinked ? "Linked" : "")
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if !isFacebookLinked {
-                                    profileVm.linkFacebook()
-                                }
+                            if !isFacebookLinked {
+                                RowView(image: "link", title: "Link facebook Account", text: "")
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        profileVm.linkFacebook()
+                                    }
                             }
-                        RowView(image: "link", title: "Link Google Account", text: isGoogleLinked ? "Linked" : "")
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if !isGoogleLinked {
-                                    profileVm.linkGoogle()
-                                }
+                            if !isGoogleLinked {
+                                RowView(image: "link", title: "Link Google Account", text: "")
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        profileVm.linkGoogle()
+                                    }
                             }
-                    }.listStyle(.plain)
-                        
-                } header: {
-                    Text("Link Your Accounts")
-                        .foregroundStyle(Color.dlInkMuted)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        }.listStyle(.plain)
+                            
+                    } header: {
+                        Text("Link Your Accounts")
+                            .foregroundStyle(Color.dlInkMuted)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
              Spacer()
             }.padding(.horizontal)
