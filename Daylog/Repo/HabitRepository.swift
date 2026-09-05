@@ -10,10 +10,10 @@ import FirebaseFirestore
 
 protocol HabitRepositoryProtocol {
     func getHabits(userId: String) async throws -> [Habit]
-    func createHabit(userId: String, habit: Habit) async throws
-    func updateHabit(userId: String, habit: Habit) async throws
+    func createHabit(userId: String, title:String, emoji: String) async throws
+    func updateHabit(userId: String,habitId:String, title:String, emoji: String)  async throws
     func deleteHabit(userId: String, habitId: String) async throws
-    func toggleHabitLog(userId: String, habitId: String, date: Date) async throws
+    func toggleHabitLog(userId: String, habitId: String) async throws
 }
 
 final class HabitRepository: HabitRepositoryProtocol {
@@ -28,19 +28,19 @@ final class HabitRepository: HabitRepositoryProtocol {
         try await dataManager.getHabits(userId: userId)
     }
 
-    func createHabit(userId: String, habit: Habit) async throws {
-        try await dataManager.createHabit(userId: userId, habit: habit)
+    func createHabit(userId: String, title:String, emoji: String) async throws {
+        try await dataManager.createHabit(userId: userId, title: title, emoji: emoji)
     }
 
-    func updateHabit(userId: String, habit: Habit) async throws {
-        try await dataManager.updateHabit(userId: userId, habit: habit)
+    func updateHabit(userId: String,habitId:String, title:String, emoji: String) async throws {
+        try await dataManager.updateHabitFields(userId: userId, habitID: habitId, habitTitle: title, HabitEmoji: emoji)
     }
 
     func deleteHabit(userId: String, habitId: String) async throws {
         try await dataManager.deleteHabit(userId: userId, habitId: habitId)
     }
 
-    func toggleHabitLog(userId: String, habitId: String, date: Date = Date()) async throws {
-        try await dataManager.toggleHabitLog(userId: userId, habitId: habitId, date: date)
+    func toggleHabitLog(userId: String, habitId: String) async throws {
+        try await dataManager.toggleHabitLog(userId: userId, habitId: habitId)
     }
 }

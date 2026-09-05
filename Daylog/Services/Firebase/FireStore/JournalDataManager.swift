@@ -59,6 +59,14 @@ extension JournalDataManager {
         try await journalDocument(userId: userId, entryId: entryId).delete()
     }
 
+    /// Fetches all journal entries for a user, sorted newest first.
+    func getEntries(userId: String) async throws -> [JournalEntry] {
+        let snapshot = try await journalCollection(userId: userId)
+            .order(by: JournalEntry.CodingKeys.dayKey.rawValue, descending: true)
+            .getDocuments()
+        return snapshot.documents.compactMap { try? $0.data(as: JournalEntry.self) }
+    }
+
     /// Real-time listener for all journal entries, sorted newest first.
     func addListener(userId: String, completion: @escaping ([JournalEntry]) -> Void) {
         journalCollection(userId: userId)
