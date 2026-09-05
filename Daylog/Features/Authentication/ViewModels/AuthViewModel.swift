@@ -21,51 +21,51 @@ final class AuthViewModel: ObservableObject {
     @Published var logInsucessful = false
     @Published var SignUpsucessful = false
 
-    func createAccount(email: String, password: String,name:String) {
+    func createAccount(email: String, password: String, name: String) {
         Task {
-            guard !email.isEmpty,!password.isEmpty ,!name.isEmpty else{
-                self.errorMessage = "password or email is empty"
+            guard !email.trimmingCharacters(in: .whitespaces).isEmpty,
+                  !password.isEmpty,
+                  !name.trimmingCharacters(in: .whitespaces).isEmpty else {
+                self.errorMessage = "Please fill in all fields (name, email, password)."
                 return
             }
             do {
-                let authDataresult = try await  AuthenticationManager.shared.CreateUser(email: email, Password: password)
+                let authDataresult = try await AuthenticationManager.shared.CreateUser(email: email, Password: password)
                 let user = AppUser(auth: authDataresult)
                 try await UserDataManager.shared.createUser(user: user)
                 self.SignUpsucessful = true
-            }catch let error {
-                print(error.localizedDescription)
-                self.errorMessage = error.localizedDescription
+            } catch let error {
+                self.errorMessage = AppError.format(error)
             }
         }
     }
-    func SignIn(email:String, password: String)   {
-        guard !email.isEmpty,!password.isEmpty else{
-            self.errorMessage = "password or email is empty"
+
+    func SignIn(email: String, password: String) {
+        guard !email.trimmingCharacters(in: .whitespaces).isEmpty,
+              !password.isEmpty else {
+            self.errorMessage = "Please enter both email and password."
             return
         }
         Task {
             do {
                 let _ = try await AuthenticationManager.shared.sigInUser(email: email, Password: password)
-                
                 self.logInsucessful = true
-            }catch let error {
-                self.errorMessage = error.localizedDescription
-
+            } catch let error {
+                self.errorMessage = AppError.format(error)
             }
         }
     }
     
-    func resetPassword(email:String) {
-        guard  !email.isEmpty else {
-            self.errorMessage = "Please enter valid email"
+    func resetPassword(email: String) {
+        guard !email.trimmingCharacters(in: .whitespaces).isEmpty else {
+            self.errorMessage = "Please enter your email address."
             return
         }
         Task {
             do {
-               try await  AuthenticationManager.shared.resetPassword(email: email)
-                
-            }catch {
-                self.errorMessage = "Un able to reset password"
+                try await AuthenticationManager.shared.resetPassword(email: email)
+            } catch {
+                self.errorMessage = AppError.format(error)
             }
         }
     }
@@ -124,8 +124,7 @@ extension AuthViewModel {
                 self.logInsucessful = true
 
             } catch {
-                print(error.localizedDescription)
-                self.errorMessage = "Unable to sign in with Facebook"
+                self.errorMessage = AppError.format(error)
             }
         }
     }

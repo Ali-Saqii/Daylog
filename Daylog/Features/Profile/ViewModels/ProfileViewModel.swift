@@ -33,7 +33,7 @@ final class ProfileViewModel: ObservableObject {
             self.isSingOut = true
         } catch {
             self.isSingOut = false
-            self.errorMessage = "Unable to logOut!"
+            self.errorMessage = AppError.format(error)
         }
     }
     
@@ -65,8 +65,8 @@ final class ProfileViewModel: ObservableObject {
             do{
                 let user = try getAuthenticatedUser()
                 self.user = try await UserDataManager.shared.getDBUser(userId: user.uid)
-            }catch let error {
-                self.errorMessage = error.localizedDescription
+            } catch let error {
+                self.errorMessage = AppError.format(error)
             }
         }
     }
@@ -88,7 +88,7 @@ final class ProfileViewModel: ObservableObject {
                     journalEntries: entries
                 )
             } catch {
-                self.errorMessage = error.localizedDescription
+                self.errorMessage = AppError.format(error)
             }
             isLoadingStats = false
         }
@@ -102,8 +102,8 @@ final class ProfileViewModel: ObservableObject {
             do{
                 try await UserDataManager.shared.upDateUserNamr(userID: user.id, displayName: displayName)
                 getUser()
-            }catch let error {
-                self.errorMessage = error.localizedDescription
+            } catch let error {
+                self.errorMessage = AppError.format(error)
             }
         }
     }
@@ -115,7 +115,7 @@ final class ProfileViewModel: ObservableObject {
                 try await UserDataManager.shared.updateUserPhotoUrl(userID: user.id, photoUrl: photoUrl)
                 getUser()
             } catch {
-                self.errorMessage = error.localizedDescription
+                self.errorMessage = AppError.format(error)
             }
         }
     }
@@ -130,7 +130,7 @@ final class ProfileViewModel: ObservableObject {
                 try getAuthProvider()
                 getUser()
             } catch {
-                self.errorMessage = error.localizedDescription
+                self.errorMessage = AppError.format(error)
             }
         }
     }
@@ -153,7 +153,7 @@ final class ProfileViewModel: ObservableObject {
                 try getAuthProvider()
                 getUser()
             } catch {
-                self.errorMessage = error.localizedDescription
+                self.errorMessage = AppError.format(error)
             }
         }
     }
@@ -176,7 +176,7 @@ final class ProfileViewModel: ObservableObject {
                     }
                 }
                 guard let tokenString = AccessToken.current?.tokenString else {
-                    self.errorMessage = "Could not retrieve Facebook access token"
+                    self.errorMessage = "Could not retrieve Facebook access token."
                     return
                 }
                 let fbResult = FacebookAuthResultModel(accessToken: tokenString, name: nil, email: nil)
@@ -186,7 +186,7 @@ final class ProfileViewModel: ObservableObject {
                 try getAuthProvider()
                 getUser()
             } catch {
-                self.errorMessage = error.localizedDescription
+                self.errorMessage = AppError.format(error)
             }
         }
     }

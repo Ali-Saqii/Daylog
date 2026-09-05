@@ -41,7 +41,7 @@ final class HabitViewModel: ObservableObject {
                     Task { await self.refreshTodayStatus(userId: authDataResult.uid, habits: habits) }
                 }
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = AppError.format(error)
             }
         }
     }
@@ -75,7 +75,7 @@ final class HabitViewModel: ObservableObject {
                 // Refresh this habit's today status after toggle
                 await refreshTodayStatus(userId: authDataResult.uid, habits: [habit])
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = AppError.format(error)
             }
         }
     }
@@ -92,8 +92,8 @@ final class HabitViewModel: ObservableObject {
             do {
                 let authDataResult = try AuthenticationManager.shared.getUser()
                 try await HabitDataManager.shared.deleteHabit(userId: authDataResult.uid, habitId: habit.id)
-            }catch {
-                errorMessage = error.localizedDescription
+            } catch {
+                errorMessage = AppError.format(error)
             }
         }
     }

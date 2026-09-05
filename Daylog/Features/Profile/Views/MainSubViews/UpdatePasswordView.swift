@@ -40,8 +40,8 @@ struct UpdatePasswordView: View {
             do{
                 try await profileVM.upDatePassword(password: password)
                 dismiss()
-            }catch {
-                profileVM.errorMessage = "Un able to update password"
+            } catch {
+                profileVM.errorMessage = AppError.format(error)
             }
         }
     }

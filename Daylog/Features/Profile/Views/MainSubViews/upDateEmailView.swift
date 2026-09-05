@@ -39,8 +39,8 @@ struct upDateEmailView: View {
             do{
                 try await profileVM.upDateEmail(email: email)
                 dismiss()
-            }catch {
-                profileVM.errorMessage = "Un able to update password"
+            } catch {
+                profileVM.errorMessage = AppError.format(error)
             }
         }
     }

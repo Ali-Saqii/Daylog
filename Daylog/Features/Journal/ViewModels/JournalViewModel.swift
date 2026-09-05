@@ -64,7 +64,7 @@ final class JournalViewModel: ObservableObject {
                 }
                 resetDraft()
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = AppError.format(error)
             }
         }
     }
@@ -77,7 +77,7 @@ final class JournalViewModel: ObservableObject {
                 let uid = try AuthenticationManager.shared.getUser().uid
                 try await JournalDataManager.shared.deleteEntry(userId: uid, entryId: entry.id)
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = AppError.format(error)
             }
         }
     }

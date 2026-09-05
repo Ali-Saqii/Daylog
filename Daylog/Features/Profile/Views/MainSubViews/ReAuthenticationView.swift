@@ -70,9 +70,8 @@ struct ReAuthenticationView: View {
                 }
         
                 dismiss()
-            }catch{
-                profileVM.errorMessage = "Unable to reAuthenticate"
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: { dismiss()})
+            } catch {
+                profileVM.errorMessage = AppError.format(error)
             }
         }
     }

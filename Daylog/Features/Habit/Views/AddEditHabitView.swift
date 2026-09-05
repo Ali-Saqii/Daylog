@@ -82,8 +82,8 @@ struct AddEditHabitView: View {
                 try await habitViewModel.updateHabit(habit.id, newTitle, newEmoji ?? "")
                 isSaving = false
                 dismiss()
-            } catch let error{
-                habitViewModel.errorMessage = error.localizedDescription
+            } catch let error {
+                habitViewModel.errorMessage = AppError.format(error)
                 isSaving = false
 
             }
@@ -96,8 +96,8 @@ struct AddEditHabitView: View {
                 try await habitViewModel.addHabit(title: title, emoji: emoji)
                 isSaving = false
                 dismiss()
-            } catch let error{
-                habitViewModel.errorMessage = error.localizedDescription
+            } catch let error {
+                habitViewModel.errorMessage = AppError.format(error)
                 isSaving = false
             }
         }
