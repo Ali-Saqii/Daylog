@@ -15,7 +15,7 @@ struct AppError {
         
         // Handle FirebaseAuth errors
         if nsError.domain == AuthErrorDomain {
-            if let code = AuthErrorCode.Code(rawValue: nsError.code) {
+            if let code = AuthErrorCode(rawValue: nsError.code) {
                 switch code {
                 case .invalidEmail:
                     return "The email address format is invalid."
@@ -45,7 +45,7 @@ struct AppError {
 
         // Handle Firestore errors
         if nsError.domain == FirestoreErrorDomain {
-            if let code = FirestoreErrorCode.Code(rawValue: nsError.code) {
+            if let code = FirestoreErrorCode(rawValue: nsError.code) {
                 switch code {
                 case .permissionDenied:
                     return "Permission denied. Check your permissions."
