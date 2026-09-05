@@ -107,6 +107,18 @@ final class ProfileViewModel: ObservableObject {
             }
         }
     }
+
+    func updatePhotoUrl(photoUrl: String) {
+        guard let user else { return }
+        Task {
+            do {
+                try await UserDataManager.shared.updateUserPhotoUrl(userID: user.id, photoUrl: photoUrl)
+                getUser()
+            } catch {
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
     
     //MARK: - Link Accounts
     func linkEmailAndPassword(email: String, password: String) {

@@ -36,4 +36,12 @@ class UserDataManager {
         ]
         try await userDocument(userID: userID).updateData(data)
     }
+
+    // update photoUrl
+    func updateUserPhotoUrl(userID: String, photoUrl: String) async throws {
+        let data: [String: Any] = [
+            AppUser.CodingKeys.photoUrl.rawValue : photoUrl
+        ]
+        try await userDocument(userID: userID).updateData(data)
+    }
 }

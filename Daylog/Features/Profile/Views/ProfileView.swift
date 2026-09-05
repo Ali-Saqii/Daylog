@@ -17,6 +17,8 @@ struct ProfileView: View {
     @State private var showUpdateEmailView = false
     @State private var selectedDestination: destination? = nil
     @State private var showAlert = false
+    @State private var showPhotoPrompt = false
+    @State private var photoUrlInput = ""
     var body: some View {
         ZStack {
             Color.dlBackground.ignoresSafeArea(.all)
@@ -53,6 +55,19 @@ struct ProfileView: View {
             ReAuthenticationView(showAuthenticate: $showAuthenticationView, showUpdatePasswordView: $showUpdatePasswordView, showUpdateEmailView: $showUpdateEmailView, selectedDestination: $selectedDestination)
                 .environmentObject(profileVM)
         }
+        .alert("Update Profile Photo", isPresented: $showPhotoPrompt) {
+            TextField("Image URL (https://...)", text: $photoUrlInput)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            Button("Save") {
+                let trimmed = photoUrlInput.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { return }
+                profileVM.updatePhotoUrl(photoUrl: trimmed)
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Enter a direct image URL to set as your profile avatar.")
+        }
     }
     func logOut() {
         profileVM.signOut()
@@ -85,18 +100,20 @@ extension ProfileView {
                             }
                         }
                         .overlay {
-                          overlayCntentView()
+                            overlayCntentView()
                                 .onTapGesture {
-                                    
+                                    photoUrlInput = user.photoUrl ?? ""
+                                    showPhotoPrompt = true
                                 }
                         }
                        
                     }else {
                         DylogPlaceholderView()
                             .overlay {
-                              overlayCntentView()
+                                overlayCntentView()
                                     .onTapGesture {
-                                        
+                                        photoUrlInput = ""
+                                        showPhotoPrompt = true
                                     }
                             }
 
