@@ -37,9 +37,10 @@ struct ProfileView: View {
                 }
             }
             
-        }.onAppear(perform: {
+        }.onAppear {
             profileVM.getUser()
-        })
+            profileVM.loadStats()
+        }
         .navigationDestination(isPresented: $showUpdatePasswordView) {
             UpdatePasswordView()
                 .environmentObject(profileVM)
@@ -121,10 +122,22 @@ extension ProfileView {
                     Spacer()
                 }
             }
-            HStack(spacing:18) {
-                    GridView(num: 3, title: "Habits")
-                    GridView(num: 12, title: "Best Streak")
-                    GridView(num: 8, title: "Entries")
+            if profileVM.isLoadingStats {
+                HStack(spacing: 18) {
+                    ForEach(0..<3, id: \.self) { _ in
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.dlSurface)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 60)
+                            .redacted(reason: .placeholder)
+                    }
+                }
+            } else {
+                HStack(spacing: 18) {
+                    GridView(num: profileVM.stats.habitCount, title: "Habits")
+                    GridView(num: profileVM.stats.bestStreak, title: "Best Streak")
+                    GridView(num: profileVM.stats.journalEntries, title: "Entries")
+                }
             }
             }.padding(.horizontal)
     }
