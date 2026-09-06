@@ -56,22 +56,20 @@ final class NotificationManager {
         }
     }
 }
+//MARK: Notification management
 
 extension NotificationManager {
 
-    /// Fires an immediate local notification — used for one-off events
-    /// like signup, login, or adding a habit/journal entry.
     func sendInstantNotification(title: String, body: String) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
 
-        // trigger nil + very short delay = fires almost immediately
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
 
         let request = UNNotificationRequest(
-            identifier: UUID().uuidString,   // har event ki apni unique ID, taake overwrite na ho
+            identifier: UUID().uuidString,
             content: content,
             trigger: trigger
         )
@@ -83,6 +81,7 @@ extension NotificationManager {
         }
     }
 }
+//MARK: Add Notification management
 
 extension NotificationManager {
 
@@ -121,11 +120,9 @@ extension NotificationManager {
         )
     }
 }
+//MARK: Badge management
 extension NotificationManager {
 
-    /// Clears the app icon badge count. Call this whenever the app
-    /// becomes active/foreground, so old notification counts don't
-    /// linger after the user has already seen them.
     func clearBadgeCount() {
         UNUserNotificationCenter.current().setBadgeCount(0) { error in
             if let error {
