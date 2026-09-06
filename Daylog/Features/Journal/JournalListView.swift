@@ -31,14 +31,14 @@ struct JournalListView: View {
                 showingCompose = true
             } label: {
                 Circle()
-                    .fill(Color.dlCalm)
+                    .fill(Color.dlAccent)
                     .frame(width: 45, height: 45)
                     .overlay {
                         Image(systemName: "pencil")
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
                     }
-            }
+            }.padding(.trailing)
         }
         .sheet(isPresented: $showingCompose) {
             JournalComposeView()

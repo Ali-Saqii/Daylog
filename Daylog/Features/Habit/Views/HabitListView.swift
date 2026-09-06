@@ -36,7 +36,7 @@ struct HabitListView: View {
                             Image(systemName: "plus")
                                 .fontWeight(.bold)
                                 .foregroundStyle(.white)
-                        }
+                        }.padding(.trailing)
                 }
             })
             .background(Color.dlBackground.ignoresSafeArea())
