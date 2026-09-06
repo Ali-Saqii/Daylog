@@ -33,9 +33,15 @@ struct RootView: View {
             }
         }.onAppear {
             showSplashScreen = true
-            let authUser = try? AuthenticationManager.shared.getUser()
-            appState.isLoggedIn = authUser != nil ? true : false
-            showSplashScreen = false
+            Task {
+                // Yield so SwiftUI renders the splash before the auth check runs
+                try? await Task.sleep(for: .milliseconds(800))
+                let authUser = try? AuthenticationManager.shared.getUser()
+                appState.isLoggedIn = authUser != nil
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showSplashScreen = false
+                }
+            }
         }
     }
 }

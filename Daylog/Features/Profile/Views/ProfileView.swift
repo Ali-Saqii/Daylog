@@ -191,6 +191,9 @@ extension ProfileView {
                 
                 Section {
                     RowView(image: "bell", title: "Daily Reminder", text: "on")
+                        .onTapGesture {
+                            
+                        }
 //                    RowView(image: "moon", title: "Appearance", text: "system")
                     
                 } header: {

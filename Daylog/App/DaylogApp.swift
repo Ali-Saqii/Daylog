@@ -22,6 +22,7 @@ struct DaylogApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(appState)
+                .preferredColorScheme(.light)
                 .onOpenURL { url in
                     ApplicationDelegate.shared.application(
                         UIApplication.shared,

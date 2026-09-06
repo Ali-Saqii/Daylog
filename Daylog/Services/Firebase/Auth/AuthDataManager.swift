@@ -55,12 +55,12 @@ extension AuthenticationManager {
         try await Auth.auth().sendPasswordReset(withEmail: email)
     }
     func updateEmail(email: String) async throws {
-        guard let user  = Auth.auth().currentUser else {
-            print("User Not found")
-            return
+        guard let user = Auth.auth().currentUser else {
+            throw URLError(.badServerResponse)
         }
-        
-        try await user.updatePassword(to:email )
+        // Uses Firebase's secure flow: sends a verification link to the new address
+        // before the change is committed.
+        try await user.sendEmailVerification(beforeUpdatingEmail: email)
     }
     
     func updatePassword(password: String)async throws {

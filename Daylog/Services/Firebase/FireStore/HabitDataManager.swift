@@ -50,11 +50,15 @@ extension HabitDataManager {
     func deleteHabit(userId: String, habitId: String) async throws {
         try await habitDocument(userId: userId, habitId: habitId).delete()
     }
-    // Archived Habit
+    // Archive Habit
     func archiveHabit(userId: String, habitId: String) async throws {
-        let data: [String: Any] = [
-            Habit.CodingKeys.isArchived.rawValue: true
-        ]
+        let data: [String: Any] = [Habit.CodingKeys.isArchived.rawValue: true]
+        try await habitDocument(userId: userId, habitId: habitId).updateData(data)
+    }
+
+    // Unarchive Habit
+    func unarchiveHabit(userId: String, habitId: String) async throws {
+        let data: [String: Any] = [Habit.CodingKeys.isArchived.rawValue: false]
         try await habitDocument(userId: userId, habitId: habitId).updateData(data)
     }
     
@@ -71,14 +75,14 @@ extension HabitDataManager {
     func getHabits(userId:String) async throws -> [Habit]{
         return try await habitsCollection(userId: userId).getAllHabits(as: Habit.self)
     }
-    func addListernerForAllHabits(userId: String,completion: @escaping (_ habits: [Habit]) -> Void) {
-        habitsCollection(userId: userId).addSnapshotListener { querySnapshot, error in
+    @discardableResult
+    func addListernerForAllHabits(userId: String, completion: @escaping (_ habits: [Habit]) -> Void) -> ListenerRegistration {
+        return habitsCollection(userId: userId).addSnapshotListener { querySnapshot, error in
             guard let documents = querySnapshot?.documents else {
                 print("no documents")
                 return
             }
-            
-            let habits: [Habit] = documents.compactMap({ try? $0.data(as: Habit.self)})
+            let habits: [Habit] = documents.compactMap({ try? $0.data(as: Habit.self) })
             completion(habits)
         }
     }
