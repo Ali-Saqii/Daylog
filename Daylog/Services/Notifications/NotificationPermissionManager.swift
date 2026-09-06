@@ -121,3 +121,16 @@ extension NotificationManager {
         )
     }
 }
+extension NotificationManager {
+
+    /// Clears the app icon badge count. Call this whenever the app
+    /// becomes active/foreground, so old notification counts don't
+    /// linger after the user has already seen them.
+    func clearBadgeCount() {
+        UNUserNotificationCenter.current().setBadgeCount(0) { error in
+            if let error {
+                print("Failed to clear badge count: \(error.localizedDescription)")
+            }
+        }
+    }
+}
