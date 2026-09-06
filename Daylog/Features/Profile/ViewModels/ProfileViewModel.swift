@@ -23,6 +23,7 @@ final class ProfileViewModel: ObservableObject {
     @Published var user: AppUser? = nil
     @Published var stats: ProfileStats = ProfileStats()
     @Published var isLoadingStats = false
+    @Published var isUploadingPhoto = false
     @Published var errorMessage : String? = ""
     @Published var isSingOut = false
     @Published var authProvider: [AuthProviderOption]? = nil
@@ -117,6 +118,21 @@ final class ProfileViewModel: ObservableObject {
             } catch {
                 self.errorMessage = AppError.format(error)
             }
+        }
+    }
+
+    func uploadProfilePhoto(imageData: Data) {
+        guard let user else { return }
+        isUploadingPhoto = true
+        Task {
+            do {
+                let photoUrl = try await CloudinaryManager.shared.replaceProfileImage(userId: user.id, data: imageData)
+                try await UserDataManager.shared.updateUserPhotoUrl(userID: user.id, photoUrl: photoUrl)
+                getUser()
+            } catch {
+                self.errorMessage = AppError.format(error)
+            }
+            isUploadingPhoto = false
         }
     }
     

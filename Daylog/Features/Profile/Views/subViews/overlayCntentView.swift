@@ -22,9 +22,6 @@ struct overlayCntentView: View {
                         
                     }
             }
-            .onTapGesture {
-                print("Hii")
-            }
     }
 }
 

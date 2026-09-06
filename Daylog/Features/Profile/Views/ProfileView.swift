@@ -1,45 +1,50 @@
 //
-// ProfileView.swift
-// Daylog
+//  ProfileView.swift
+//  Daylog
 //
-// Created by Mac mini on 17/08/2026.
+//  Created by Mac mini on 17/08/2026.
 //
+
 import SwiftUI
+import PhotosUI
+
 enum destination {
     case updatePassword
     case updateEmail
 }
+
 struct ProfileView: View {
     @EnvironmentObject private var appState: AppState
     @StateObject private var profileVM = ProfileViewModel()
     @State var showAuthenticationView = false
     @State private var showUpdatePasswordView = false
     @State private var showUpdateEmailView = false
+    @State private var showReminderSettings = false
     @State private var selectedDestination: destination? = nil
-    @State private var showAlert = false
-    @State private var showPhotoPrompt = false
-    @State private var photoUrlInput = ""
+    @State private var selectedPhotoItem: PhotosPickerItem? = nil
+
     var body: some View {
         ZStack {
             Color.dlBackground.ignoresSafeArea(.all)
             VStack {
-                
                 ProfilePicView
                 AccountSectionView
-                
+
                 if let errorMessage = profileVM.errorMessage {
                     Text(errorMessage)
-                        .font(.dmSans(20, weight: .regular))
+                        .font(.dmSans(16, weight: .regular))
                         .foregroundStyle(.red)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: {profileVM.errorMessage = nil})
-
-                    }
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                                profileVM.errorMessage = nil
+                            }
+                        }
                 }
             }
-            
-        }.onAppear {
+        }
+        .onAppear {
             profileVM.getUser()
             profileVM.loadStats()
         }
@@ -52,76 +57,90 @@ struct ProfileView: View {
                 .environmentObject(profileVM)
         }
         .fullScreenCover(isPresented: $showAuthenticationView) {
-            ReAuthenticationView(showAuthenticate: $showAuthenticationView, showUpdatePasswordView: $showUpdatePasswordView, showUpdateEmailView: $showUpdateEmailView, selectedDestination: $selectedDestination)
-                .environmentObject(profileVM)
+            ReAuthenticationView(
+                showAuthenticate: $showAuthenticationView,
+                showUpdatePasswordView: $showUpdatePasswordView,
+                showUpdateEmailView: $showUpdateEmailView,
+                selectedDestination: $selectedDestination
+            )
+            .environmentObject(profileVM)
         }
-        .alert("Update Profile Photo", isPresented: $showPhotoPrompt) {
-            TextField("Image URL (https://...)", text: $photoUrlInput)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-            Button("Save") {
-                let trimmed = photoUrlInput.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !trimmed.isEmpty else { return }
-                profileVM.updatePhotoUrl(photoUrl: trimmed)
+        .sheet(isPresented: $showReminderSettings) {
+            ReminderSettingsView()
+        }
+        .onChange(of: selectedPhotoItem) { newItem in
+            guard let newItem else { return }
+            Task {
+                if let data = try? await newItem.loadTransferable(type: Data.self) {
+                    profileVM.uploadProfilePhoto(imageData: data)
+                }
             }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Enter a direct image URL to set as your profile avatar.")
         }
     }
+
     func logOut() {
         profileVM.signOut()
         appState.isLoggedIn = !profileVM.isSingOut
     }
 }
+
 extension ProfileView {
-    
+
     private var ProfilePicView: some View {
         VStack {
-            if let user = profileVM.user{
+            if let user = profileVM.user {
                 HStack {
-                    if let photoUrl = user.photoUrl {
-                        AsyncImage(url: URL(string: photoUrl)) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 100, height: 100)
-                                    .clipShape(Circle())
-                                    .clipped()
-                            case .failure:
-                                DylogPlaceholderView()
-                            case .empty:
-                                DylogPlaceholderView()
-                            @unknown default:
-                                DylogPlaceholderView()
-                                
+                    ZStack {
+                        if let photoUrl = user.photoUrl, !photoUrl.isEmpty {
+                            AsyncImage(url: URL(string: photoUrl)) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 100, height: 100)
+                                        .clipShape(Circle())
+                                        .clipped()
+                                case .failure:
+                                    DylogPlaceholderView()
+                                case .empty:
+                                    DylogPlaceholderView()
+                                @unknown default:
+                                    DylogPlaceholderView()
+                                }
                             }
+                        } else {
+                            DylogPlaceholderView()
                         }
-                        .overlay {
-                            overlayCntentView()
-                                .onTapGesture {
-                                    photoUrlInput = user.photoUrl ?? ""
-                                    showPhotoPrompt = true
+
+                        // Uploading indicator
+                        if profileVM.isUploadingPhoto {
+                            Circle()
+                                .fill(Color.black.opacity(0.45))
+                                .frame(width: 100, height: 100)
+                                .overlay {
+                                    ProgressView()
+                                        .tint(.white)
                                 }
                         }
-                       
-                    }else {
-                        DylogPlaceholderView()
-                            .overlay {
-                                overlayCntentView()
-                                    .onTapGesture {
-                                        photoUrlInput = ""
-                                        showPhotoPrompt = true
-                                    }
-                            }
-
                     }
+                    .frame(width: 100, height: 100)
+                    .overlay {
+                        PhotosPicker(
+                            selection: $selectedPhotoItem,
+                            matching: .images,
+                            photoLibrary: .shared()
+                        ) {
+                            overlayCntentView()
+                        }
+                        .disabled(profileVM.isUploadingPhoto)
+                    }
+
                     Spacer()
-                    VStack(alignment:.leading) {
+
+                    VStack(alignment: .leading) {
                         if let displayName = user.displayName {
-                            Text (displayName.capitalized)
+                            Text(displayName.capitalized)
                                 .font(.dmSans(28, weight: .medium))
                         }
                         if let email = user.email {
@@ -130,8 +149,8 @@ extension ProfileView {
                                 .tint(.black.opacity(0.7))
                                 .lineLimit(1)
                         }
-                        if  let date = user.createdAt {
-                            Text ("member since \((date).dayKey)".capitalized)
+                        if let date = user.createdAt {
+                            Text("member since \(date.dayKey)".capitalized)
                                 .font(.headline)
                                 .foregroundStyle(.black.opacity(0.7))
                         }
@@ -139,6 +158,7 @@ extension ProfileView {
                     Spacer()
                 }
             }
+
             if profileVM.isLoadingStats {
                 HStack(spacing: 18) {
                     ForEach(0..<3, id: \.self) { _ in
@@ -156,11 +176,13 @@ extension ProfileView {
                     GridView(num: profileVM.stats.journalEntries, title: "Entries")
                 }
             }
-            }.padding(.horizontal)
+        }
+        .padding(.horizontal)
     }
+
     private var AccountSectionView: some View {
-        VStack(spacing: 0){
-            List() {
+        VStack(spacing: 0) {
+            List {
                 Section {
                     NavigationLink {
                         EditProfileView()
@@ -168,17 +190,17 @@ extension ProfileView {
                     } label: {
                         RowView(image: "person", title: "Edit profile", text: "")
                     }
-                    if let provider = profileVM.authProvider,provider.contains(.email) {
+                    if let provider = profileVM.authProvider, provider.contains(.email) {
                         RowView(image: "lock", title: "Change password", text: "")
                             .onTapGesture {
-                                withAnimation{
+                                withAnimation {
                                     selectedDestination = .updatePassword
                                     showAuthenticationView.toggle()
                                 }
                             }
                         RowView(image: "envelope", title: "Change email", text: "")
                             .onTapGesture {
-                                withAnimation{
+                                withAnimation {
                                     selectedDestination = .updateEmail
                                     showAuthenticationView.toggle()
                                 }
@@ -187,24 +209,22 @@ extension ProfileView {
                 } header: {
                     Text("Account".capitalized)
                 }
-                
-                
+
                 Section {
                     RowView(image: "bell", title: "Daily Reminder", text: "on")
                         .onTapGesture {
-                            
+                            showReminderSettings = true
                         }
-//                    RowView(image: "moon", title: "Appearance", text: "system")
-                    
                 } header: {
                     Text("Preferences".capitalized)
                 }
+
                 Section {
                     Text("logOut")
                         .font(.dmSans(20, weight: .regular))
                         .foregroundStyle(.green)
                         .onTapGesture {
-                          logOut()
+                            logOut()
                         }
 
                     Text("Delete Account")
@@ -214,24 +234,21 @@ extension ProfileView {
                             withAnimation {
                                 showAuthenticationView.toggle()
                             }
-                            
                         }
-                }header: {
+                } header: {
                     Text("".capitalized)
                 }
-                
-            }.scrollContentBackground(.hidden)
-                .background(Color(red: 0.98, green: 0.96, blue: 0.93))
-                .listStyle(.insetGrouped)
-                .scrollDisabled(true)
-                .listSectionSpacing(0)
-            
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color(red: 0.98, green: 0.96, blue: 0.93))
+            .listStyle(.insetGrouped)
+            .scrollDisabled(true)
+            .listSectionSpacing(0)
         }
     }
- 
 }
 
 #Preview {
-        ProfileView()
-            .environmentObject(AppState())
+    ProfileView()
+        .environmentObject(AppState())
 }
