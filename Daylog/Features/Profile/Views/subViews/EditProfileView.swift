@@ -13,6 +13,7 @@ struct EditProfileView: View {
     @State private var showLinkEmailAlert = false
     @State private var linkEmail = ""
     @State private var linkPassword = ""
+    @Environment(\.dismiss) var dismiss
     var body: some View {
         ZStack {
             Color.dlBackground.ignoresSafeArea()
@@ -20,11 +21,11 @@ struct EditProfileView: View {
                 Section {
                     AuthTextField(placeholder: displayName.isEmpty ? "Enter Display name": displayName, text: $displayName)
                         .overlay(alignment: .trailing) {
-                            Text("change")
-                                .font(.dmSans(20, weight: .semiBold))
+                            Text(profileVm.user?.displayName == nil || (profileVm.user?.displayName?.isEmpty ?? true) ? "Add" : "Change")             .font(.dmSans(20, weight: .semiBold))
                                 .foregroundStyle(Color.dlAccent)
                                 .onTapGesture {
                                     profileVm.updateUserName(displayName: displayName)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {dismiss()})
                                 }
                                 .padding(.horizontal)
                         }
