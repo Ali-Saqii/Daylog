@@ -61,6 +61,7 @@ final class JournalViewModel: ObservableObject {
                         text: text,
                         mood: draftMood
                     )
+                    NotificationManager.shared.notifyJournalAdded()
                 }
                 resetDraft()
             } catch {

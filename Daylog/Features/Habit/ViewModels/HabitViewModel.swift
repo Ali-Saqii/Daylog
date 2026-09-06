@@ -83,8 +83,7 @@ final class HabitViewModel: ObservableObject {
     func addHabit(title: String, emoji: String?) async throws {
    
                 let authDataResult = try AuthenticationManager.shared.getUser()
-                try await HabitDataManager.shared.createHabit(userId: authDataResult.uid, title: title, emoji: emoji ?? "")
-      
+                try await HabitDataManager.shared.createHabit(userId: authDataResult.uid, title: title, emoji: emoji ?? "")      
     }
 
     func deleteHabit(_ habit: Habit) {

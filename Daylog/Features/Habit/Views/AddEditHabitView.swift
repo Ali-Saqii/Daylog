@@ -94,6 +94,7 @@ struct AddEditHabitView: View {
             do{
                 isSaving = true
                 try await habitViewModel.addHabit(title: title, emoji: emoji)
+                NotificationManager.shared.notifyHabitAdded(title: title)
                 isSaving = false
                 dismiss()
             } catch let error {

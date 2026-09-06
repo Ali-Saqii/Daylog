@@ -34,6 +34,7 @@ final class AuthViewModel: ObservableObject {
                 let user = AppUser(auth: authDataresult)
                 try await UserDataManager.shared.createUser(user: user)
                 self.SignUpsucessful = true
+                NotificationManager.shared.notifySignUpSuccess()
             } catch let error {
                 self.errorMessage = AppError.format(error)
             }
@@ -50,6 +51,7 @@ final class AuthViewModel: ObservableObject {
             do {
                 let _ = try await AuthenticationManager.shared.sigInUser(email: email, Password: password)
                 self.logInsucessful = true
+                NotificationManager.shared.notifyLoginSuccess()
             } catch let error {
                 self.errorMessage = AppError.format(error)
             }
@@ -87,6 +89,7 @@ extension AuthViewModel {
         
         let tokens = GIDSignInResultModel(idToken: idToken, accessToken: accessToken)
         let authDataresult =  try await AuthenticationManager.shared.signInWithGoogle(tokens:tokens)
+        NotificationManager.shared.notifyLoginSuccess()
         let user = AppUser(auth: authDataresult)
         try await UserDataManager.shared.createUser(user: user)
     }
@@ -122,6 +125,8 @@ extension AuthViewModel {
                 let user = AppUser(auth: authDataresult)
                 try await UserDataManager.shared.createUser(user: user)
                 self.logInsucessful = true
+                NotificationManager.shared.notifyLoginSuccess()
+
 
             } catch {
                 self.errorMessage = AppError.format(error)

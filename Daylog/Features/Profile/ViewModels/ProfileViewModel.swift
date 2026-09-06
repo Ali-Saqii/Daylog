@@ -128,6 +128,7 @@ final class ProfileViewModel: ObservableObject {
                 let updatedUser = AppUser(auth: authDataResult)
                 try await UserDataManager.shared.createUser(user: updatedUser)
                 try getAuthProvider()
+                NotificationManager.shared.notifyAccountLinked(provider: "Email and Password")
                 getUser()
             } catch {
                 self.errorMessage = AppError.format(error)
@@ -151,6 +152,7 @@ final class ProfileViewModel: ObservableObject {
                 let updatedUser = AppUser(auth: authDataResult)
                 try await UserDataManager.shared.createUser(user: updatedUser)
                 try getAuthProvider()
+                NotificationManager.shared.notifyAccountLinked(provider: "Google")
                 getUser()
             } catch {
                 self.errorMessage = AppError.format(error)
@@ -184,6 +186,7 @@ final class ProfileViewModel: ObservableObject {
                 let updatedUser = AppUser(auth: authDataResult)
                 try await UserDataManager.shared.createUser(user: updatedUser)
                 try getAuthProvider()
+                NotificationManager.shared.notifyAccountLinked(provider: "Facebook")
                 getUser()
             } catch {
                 self.errorMessage = AppError.format(error)
