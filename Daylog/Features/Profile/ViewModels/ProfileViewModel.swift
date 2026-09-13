@@ -133,6 +133,7 @@ final class ProfileViewModel: ObservableObject {
                 getUser()
             } catch {
                 self.errorMessage = AppError.format(error)
+                print("Error: \(error)")
             }
             isUploadingPhoto = false
         }

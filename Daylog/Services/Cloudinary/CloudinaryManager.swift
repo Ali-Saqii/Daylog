@@ -42,26 +42,21 @@ final class CloudinaryManager {
     // 1. cloudName: Your Cloudinary Cloud Name
     // 2. uploadPreset: An unsigned upload preset (Settings -> Upload -> Upload presets -> Add preset -> Signing Mode: Unsigned)
     // 3. apiKey & apiSecret: (Optional) Needed only if making direct signed destroy API calls
-    var cloudName: String = "YOUR_CLOUD_NAME"
+    var cloudName: String = "mhorojfd"
     var uploadPreset: String = "daylog_preset"
-    var apiKey: String = ""
-    var apiSecret: String = ""
+    var apiKey: String = "734265662156912"
+    var apiSecret: String = "UR74CKYbGyk5ISewhcCEMn8lLX8"
 
     private let folder: String = "daylog_profile_photos"
 
-    // MARK: - Helper Public ID
     func publicIdForUser(userId: String) -> String {
         return "\(folder)/user_\(userId)"
     }
 
-    // MARK: - Upload / Replace Profile Image
-    /// Uploads the given image data to Cloudinary.
-    /// Overwrites any existing photo for this user (deleting the old version on Cloudinary).
-    /// Returns the secure HTTPS URL of the uploaded image.
+
     @discardableResult
     func replaceProfileImage(userId: String, data: Data) async throws -> String {
-        guard !cloudName.isEmpty && cloudName != "YOUR_CLOUD_NAME" else {
-            // If placeholder is still present, throw a descriptive error
+        guard !cloudName.isEmpty && (!uploadPreset.isEmpty || (!apiKey.isEmpty && !apiSecret.isEmpty)) else {
             throw CloudinaryError.missingCredentials
         }
 
@@ -76,7 +71,7 @@ final class CloudinaryManager {
         return try await uploadImage(data: data, publicId: publicId)
     }
 
-    // MARK: - Upload Image (Unsigned REST API)
+    // MARK: - Upload Image (Signed or Unsigned REST API)
     func uploadImage(data: Data, publicId: String) async throws -> String {
         guard let url = URL(string: "https://api.cloudinary.com/v1_1/\(cloudName)/image/upload") else {
             throw CloudinaryError.invalidURL
@@ -88,12 +83,31 @@ final class CloudinaryManager {
         let boundary = "Boundary-\(UUID().uuidString)"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 
-        var parameters: [String: String] = [
-            "upload_preset": uploadPreset,
-            "public_id": publicId,
-            "overwrite": "true",
-            "invalidate": "true"
-        ]
+        var parameters: [String: String] = [:]
+
+        if !apiKey.isEmpty && !apiSecret.isEmpty {
+            // Signed upload: API Key & Secret generate a signature so no upload_preset is required in Dashboard
+            let timestamp = String(Int(Date().timeIntervalSince1970))
+            let stringToSign = "invalidate=true&overwrite=true&public_id=\(publicId)&timestamp=\(timestamp)\(apiSecret)"
+            let signature = sha1(stringToSign)
+
+            parameters = [
+                "public_id": publicId,
+                "overwrite": "true",
+                "invalidate": "true",
+                "timestamp": timestamp,
+                "api_key": apiKey,
+                "signature": signature
+            ]
+        } else {
+            // Unsigned upload fallback using upload_preset
+            parameters = [
+                "upload_preset": uploadPreset,
+                "public_id": publicId,
+                "overwrite": "true",
+                "invalidate": "true"
+            ]
+        }
 
         let body = createMultipartBody(
             boundary: boundary,
