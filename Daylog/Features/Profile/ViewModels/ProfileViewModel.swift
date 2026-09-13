@@ -24,16 +24,16 @@ final class ProfileViewModel: ObservableObject {
     @Published var stats: ProfileStats = ProfileStats()
     @Published var isLoadingStats = false
     @Published var isUploadingPhoto = false
-    @Published var errorMessage : String? = ""
-    @Published var isSingOut = false
+    @Published var errorMessage: String? = nil
+    @Published var isSignedOut = false
     @Published var authProvider: [AuthProviderOption]? = nil
     var onDismiss: (() -> Void)?
     func signOut() {
         do {
             try AuthenticationManager.shared.signOut()
-            self.isSingOut = true
+            self.isSignedOut = true
         } catch {
-            self.isSingOut = false
+            self.isSignedOut = false
             self.errorMessage = AppError.format(error)
         }
     }
@@ -101,7 +101,7 @@ final class ProfileViewModel: ObservableObject {
         guard let user else {return}
         Task {
             do{
-                try await UserDataManager.shared.upDateUserNamr(userID: user.id, displayName: displayName)
+                try await UserDataManager.shared.updateUserName(userID: user.id, displayName: displayName)
                 getUser()
             } catch let error {
                 self.errorMessage = AppError.format(error)

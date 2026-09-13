@@ -57,12 +57,31 @@ struct SignUpView: View {
                     }
                     .padding(.vertical)
                 HStack{
+                    Spacer()
                     GoogleSignInButton(viewModel: GoogleSignInButtonViewModel(scheme: .light, style: GoogleSignInButtonStyle.icon, state: .normal),action: {signInWithGoogle()})
                         .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 5)
                                 .stroke(Color.dlAccent,lineWidth: 1.5)
                         )
+                    Spacer()
+                    Button {
+                        Task {
+                            await viewModel.signInFacebook()
+                        }
+                    } label: {
+                        Image("facebook")
+                            .renderingMode(.original)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 40, height: 40)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .stroke(Color.dlAccent, lineWidth: 1.5)
+                            )
+                    }
+                    Spacer()
                 }.padding(.vertical)
                     .frame(maxWidth: .infinity, alignment: .center)
                 HStack(spacing: 0) {

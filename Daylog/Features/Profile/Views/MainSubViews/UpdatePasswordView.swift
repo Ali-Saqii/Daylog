@@ -16,7 +16,7 @@ struct UpdatePasswordView: View {
                     ZStack{
                 Color.dlBackground.ignoresSafeArea(.all)
                 VStack(spacing:30) {
-                    AuthTextField(placeholder: "Enter New Password", text: $password, keyboardType: .emailAddress)
+                    AuthTextField(placeholder: "Enter New Password", text: $password, isSecure: true)
                     PrimaryButton(title: "Update Password", action: {updatePassword()})
                     if let errorMessage = profileVM.errorMessage {
                         Text(errorMessage)

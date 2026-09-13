@@ -10,8 +10,10 @@ import SwiftUI
 struct HabitListView: View {
     @StateObject private var viewModel = HabitViewModel()
     @State private var showingAddHabit = false
-    @State private var newHabitTitle = ""
-    @State private var newHabitEmoji = ""
+
+    private var activeHabits: [Habit] {
+        viewModel.habits.filter { !$0.isArchived }
+    }
 
     var body: some View {
             ScrollView {
@@ -73,14 +75,14 @@ struct HabitListView: View {
     // MARK: - Habits list
     private var habitsCard: some View {
         VStack(spacing: 0) {
-            if viewModel.habits.isEmpty {
+            if activeHabits.isEmpty {
                 EmptyStateView(
                     icon: "list.bullet", title: "No habits yet",
                     message: "Tap + to add your first habit."
                 )
                 .padding(.vertical, 30)
             } else {
-                ForEach(Array(viewModel.habits.enumerated()), id: \.element.id) { index, habit in
+                ForEach(Array(activeHabits.enumerated()), id: \.element.id) { index, habit in
                     NavigationLink {
                         HabitDetailView(habit: habit, viewModel: viewModel)
                     } label: {
@@ -92,7 +94,7 @@ struct HabitListView: View {
                     }
                     .buttonStyle(.plain)
                     
-                    if index < viewModel.habits.count - 1 {
+                    if index < activeHabits.count - 1 {
                         Divider().background(Color.dlDivider).padding(.leading, 50)
                     }
                 }

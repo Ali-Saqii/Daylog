@@ -11,6 +11,7 @@ import PhotosUI
 enum destination {
     case updatePassword
     case updateEmail
+    case deleteAccount
 }
 
 struct ProfileView: View {
@@ -22,6 +23,11 @@ struct ProfileView: View {
     @State private var showReminderSettings = false
     @State private var selectedDestination: destination? = nil
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
+
+    /// Reads the saved reminder hour from UserDefaults to show live status.
+    private var reminderStatus: String {
+        UserDefaults.standard.object(forKey: "reminderHour") != nil ? "on" : "off"
+    }
 
     var body: some View {
         ZStack {
@@ -80,7 +86,7 @@ struct ProfileView: View {
 
     func logOut() {
         profileVM.signOut()
-        appState.isLoggedIn = !profileVM.isSingOut
+        appState.isLoggedIn = !profileVM.isSignedOut
     }
 }
 
@@ -211,7 +217,7 @@ extension ProfileView {
                 }
 
                 Section {
-                    RowView(image: "bell", title: "Daily Reminder", text: "on")
+                    RowView(image: "bell", title: "Daily Reminder", text: reminderStatus)
                         .onTapGesture {
                             showReminderSettings = true
                         }
@@ -220,7 +226,7 @@ extension ProfileView {
                 }
 
                 Section {
-                    Text("logOut")
+                    Text("Log Out")
                         .font(.dmSans(20, weight: .regular))
                         .foregroundStyle(.green)
                         .onTapGesture {
@@ -232,6 +238,7 @@ extension ProfileView {
                         .foregroundStyle(.red)
                         .onTapGesture {
                             withAnimation {
+                                selectedDestination = .deleteAccount
                                 showAuthenticationView.toggle()
                             }
                         }
@@ -240,7 +247,7 @@ extension ProfileView {
                 }
             }
             .scrollContentBackground(.hidden)
-            .background(Color(red: 0.98, green: 0.96, blue: 0.93))
+            .background(Color.dlBackground)
             .listStyle(.insetGrouped)
             .scrollDisabled(true)
             .listSectionSpacing(0)

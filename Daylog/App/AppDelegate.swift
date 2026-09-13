@@ -13,6 +13,7 @@ class AppDelegate: NSObject, UIApplicationDelegate,UNUserNotificationCenterDeleg
         AppCheck.setAppCheckProviderFactory(providerFactory)
 #endif
         FirebaseApp.configure()
+        FCMService.shared.setup()
         print("configured firebase")
         
         ApplicationDelegate.shared.application(
@@ -20,7 +21,15 @@ class AppDelegate: NSObject, UIApplicationDelegate,UNUserNotificationCenterDeleg
             didFinishLaunchingWithOptions: launchOptions
         )
         UNUserNotificationCenter.current().delegate = self
+        // Register for remote (APNs) notifications so FCM can receive push tokens
+        application.registerForRemoteNotifications()
         return true
+    }
+
+    // Forward APNs device token to FCM
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        FCMService.shared.setAPNSToken(deviceToken)
     }
     
    

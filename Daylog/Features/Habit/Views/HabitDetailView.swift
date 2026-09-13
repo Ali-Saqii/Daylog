@@ -23,6 +23,7 @@ struct HabitDetailView: View {
                     header
                     streakStats
                     toggleTodayButton
+                    archiveButton
                     deleteButton
                 }
                 .padding(20)
@@ -81,6 +82,25 @@ struct HabitDetailView: View {
         let isDone = viewModel.isCompletedToday(habit)
         return PrimaryButton(title: isDone ? "Mark as not done today" : "Mark as done today") {
             viewModel.toggleCompletion(habit)
+        }
+    }
+
+    private var archiveButton: some View {
+        Button {
+            if habit.isArchived {
+                viewModel.unarchiveHabit(habit)
+            } else {
+                viewModel.archiveHabit(habit)
+            }
+            dismiss()
+        } label: {
+            Text(habit.isArchived ? "Unarchive Habit" : "Archive Habit")
+                .font(AppFont.body(16))
+                .fontWeight(.semibold)
+                .foregroundStyle(Color.dlInkMuted)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(RoundedRectangle(cornerRadius: 14).stroke(Color.dlInkMuted, lineWidth: 1))
         }
     }
 

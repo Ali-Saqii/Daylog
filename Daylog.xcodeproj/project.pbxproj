@@ -16,6 +16,7 @@
 		9A4099E8303F17180018318C /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9A4099E7303F17180018318C /* GoogleSignInSwift */; };
 		9A4099EB303F18770018318C /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9A4099EA303F18770018318C /* FacebookCore */; };
 		9A4099ED303F18770018318C /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 9A4099EC303F18770018318C /* FacebookLogin */; };
+		9A5FDD873056C7DD0042CDE0 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 9A5FDD863056C7DD0042CDE0 /* FirebaseMessaging */; };
 		9A80317B303F1D200063F1DF /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 9A80317A303F1D200063F1DF /* FirebaseAppCheck */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +65,7 @@
 				9A4099DB303F16B10018318C /* FirebaseAuth in Frameworks */,
 				9A4099E6303F17180018318C /* GoogleSignIn in Frameworks */,
 				9A80317B303F1D200063F1DF /* FirebaseAppCheck in Frameworks */,
+				9A5FDD873056C7DD0042CDE0 /* FirebaseMessaging in Frameworks */,
 				9A4099EB303F18770018318C /* FacebookCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -71,10 +73,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9A5FDD853056C7DD0042CDE0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		9A9076F7303B3FC0007A1559 = {
 			isa = PBXGroup;
 			children = (
 				9A907702303B3FC0007A1559 /* Daylog */,
+				9A5FDD853056C7DD0042CDE0 /* Frameworks */,
 				9A907701303B3FC0007A1559 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -117,6 +127,7 @@
 				9A4099EA303F18770018318C /* FacebookCore */,
 				9A4099EC303F18770018318C /* FacebookLogin */,
 				9A80317A303F1D200063F1DF /* FirebaseAppCheck */,
+				9A5FDD863056C7DD0042CDE0 /* FirebaseMessaging */,
 			);
 			productName = Daylog;
 			productReference = 9A907700303B3FC0007A1559 /* Daylog.app */;
@@ -468,6 +479,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9A4099E9303F18770018318C /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
 			productName = FacebookLogin;
+		};
+		9A5FDD863056C7DD0042CDE0 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9A4099D9303F16B10018318C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 		9A80317A303F1D200063F1DF /* FirebaseAppCheck */ = {
 			isa = XCSwiftPackageProductDependency;

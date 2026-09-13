@@ -30,9 +30,9 @@ class UserDataManager {
     }
     
     // update userName
-    func upDateUserNamr(userID:String,displayName: String) async throws {
-        let data :[String: Any] = [
-            AppUser.CodingKeys.displayName.rawValue : displayName
+    func updateUserName(userID: String, displayName: String) async throws {
+        let data: [String: Any] = [
+            AppUser.CodingKeys.displayName.rawValue: displayName
         ]
         try await userDocument(userID: userID).updateData(data)
     }
@@ -40,8 +40,14 @@ class UserDataManager {
     // update photoUrl
     func updateUserPhotoUrl(userID: String, photoUrl: String) async throws {
         let data: [String: Any] = [
-            AppUser.CodingKeys.photoUrl.rawValue : photoUrl
+            AppUser.CodingKeys.photoUrl.rawValue: photoUrl
         ]
+        try await userDocument(userID: userID).updateData(data)
+    }
+
+    // update FCM token
+    func updateFCMToken(userID: String, token: String) async throws {
+        let data: [String: Any] = ["fcm_token": token]
         try await userDocument(userID: userID).updateData(data)
     }
 }

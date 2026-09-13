@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import CoreData
 import FirebaseCore
 import FirebaseAppCheck
 import FacebookCore
@@ -15,7 +14,6 @@ import FacebookCore
 
 struct DaylogApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    let persistenceController = PersistenceController.shared
     @StateObject private var appState = AppState()
     
     var body: some Scene {

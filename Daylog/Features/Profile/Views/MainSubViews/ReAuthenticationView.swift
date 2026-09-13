@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ReAuthenticationView: View {
     @EnvironmentObject var profileVM: ProfileViewModel
-    @State private var isSecureField = false
+    @State private var isSecureField = true
     @State private var email = ""
     @State private var password = ""
     @Binding var showAuthenticate : Bool
@@ -60,16 +60,19 @@ struct ReAuthenticationView: View {
             return
         }
         Task {
-            do{
+            do {
                 try await profileVM.reAuthenticateUser(email: email, password: password)
                 switch destination {
                 case .updateEmail:
                     showUpdateEmailView = true
+                    dismiss()
                 case .updatePassword:
                     showUpdatePasswordView = true
+                    dismiss()
+                case .deleteAccount:
+                    try await profileVM.deleteUser()
+                    dismiss()
                 }
-        
-                dismiss()
             } catch {
                 profileVM.errorMessage = AppError.format(error)
             }

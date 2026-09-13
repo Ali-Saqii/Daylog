@@ -97,11 +97,31 @@ final class HabitViewModel: ObservableObject {
         }
     }
 
-    func updateHabit(_ habitID:String, _ habitTitle: String, _ HabitEmoji:String) async throws {
+    func updateHabit(_ habitID: String, _ habitTitle: String, _ habitEmoji: String) async throws {
+        let user = try AuthenticationManager.shared.getUser()
+        try await HabitDataManager.shared.updateHabitFields(userId: user.uid, habitID: habitID, habitTitle: habitTitle, HabitEmoji: habitEmoji)
+    }
+
+    func archiveHabit(_ habit: Habit) {
+        Task {
+            do {
                 let user = try AuthenticationManager.shared.getUser()
-                try await HabitDataManager.shared.updateHabitFields(userId: user.uid, habitID: habitID, habitTitle: habitTitle, HabitEmoji: HabitEmoji)
-           
-        
+                try await HabitDataManager.shared.archiveHabit(userId: user.uid, habitId: habit.id)
+            } catch {
+                errorMessage = AppError.format(error)
+            }
+        }
+    }
+
+    func unarchiveHabit(_ habit: Habit) {
+        Task {
+            do {
+                let user = try AuthenticationManager.shared.getUser()
+                try await HabitDataManager.shared.unarchiveHabit(userId: user.uid, habitId: habit.id)
+            } catch {
+                errorMessage = AppError.format(error)
+            }
+        }
     }
     
     deinit {
