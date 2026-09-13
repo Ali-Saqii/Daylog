@@ -1,6 +1,7 @@
 import SwiftUI
 import CoreData
 import FirebaseCore
+import FirebaseCrashlytics
 import FirebaseAppCheck
 import FacebookCore
 import NotificationCenter

@@ -65,8 +65,10 @@ final class ProfileViewModel: ObservableObject {
         Task {
             do{
                 let user = try getAuthenticatedUser()
+                CrashlyticsService.shared.setUserID(user.uid)
                 self.user = try await UserDataManager.shared.getDBUser(userId: user.uid)
             } catch let error {
+                CrashlyticsService.shared.recordError(error)
                 self.errorMessage = AppError.format(error)
             }
         }
