@@ -20,14 +20,10 @@ struct SplashScreenView: View {
 
                 VStack(spacing: 16) {
                     ZStack {
-                        Circle()
-                            .fill(Color.dlAccent.opacity(0.12))
-                            .frame(width: 96, height: 96)
-
                         Image("DaylogAppIcon")
-                            .font(.system(size: 36, weight: .medium))
+                            .resizable()
+                            .frame(width: 96, height: 96)
                             .foregroundStyle(Color.dlAccent)
-                            .cornerRadius(10)
                     }
                     .scaleEffect(iconScale)
                     .opacity(iconOpacity)

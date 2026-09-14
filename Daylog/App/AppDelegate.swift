@@ -2,6 +2,7 @@ import SwiftUI
 import CoreData
 import FirebaseCore
 import FirebaseCrashlytics
+import FirebasePerformance
 import FirebaseAppCheck
 import FacebookCore
 import NotificationCenter
@@ -15,7 +16,7 @@ class AppDelegate: NSObject, UIApplicationDelegate,UNUserNotificationCenterDeleg
 #endif
         FirebaseApp.configure()
         FCMService.shared.setup()
-        print("configured firebase")
+        print("configured firebase (including Performance Monitoring)")
         
         ApplicationDelegate.shared.application(
             application,

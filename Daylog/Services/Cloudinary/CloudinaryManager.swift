@@ -73,9 +73,10 @@ final class CloudinaryManager {
 
     // MARK: - Upload Image (Signed or Unsigned REST API)
     func uploadImage(data: Data, publicId: String) async throws -> String {
-        guard let url = URL(string: "https://api.cloudinary.com/v1_1/\(cloudName)/image/upload") else {
-            throw CloudinaryError.invalidURL
-        }
+        try await PerformanceService.shared.measureAsync(name: "cloudinary_upload_image") {
+            guard let url = URL(string: "https://api.cloudinary.com/v1_1/\(cloudName)/image/upload") else {
+                throw CloudinaryError.invalidURL
+            }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -141,6 +142,7 @@ final class CloudinaryManager {
                 errorMessage = message
             }
             throw CloudinaryError.uploadFailed(errorMessage)
+        }
         }
     }
 
