@@ -29,6 +29,7 @@ struct TodayView: View {
             }
         }
         .onAppear { viewModel.startListening() }
+        .onPerformanceTrace("today_dashboard")
     }
 
     // MARK: - Header

@@ -48,6 +48,7 @@ struct JournalComposeView: View {
             }
         }
         .onAppear { textFieldFocused = true }
+        .onPerformanceTrace("journal_compose")
     }
 
     // MARK: - Date line

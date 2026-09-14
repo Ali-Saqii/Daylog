@@ -54,6 +54,7 @@ struct ProfileView: View {
             profileVM.getUser()
             profileVM.loadStats()
         }
+        .onPerformanceTrace("profile_view")
         .navigationDestination(isPresented: $showUpdatePasswordView) {
             UpdatePasswordView()
                 .environmentObject(profileVM)

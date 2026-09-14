@@ -25,6 +25,7 @@ struct JournalListView: View {
             }
         }
         .onAppear { viewModel.startListening() }
+        .onPerformanceTrace("journal_list")
         .safeAreaInset(edge: .bottom, alignment: .trailing, spacing: 60) {
             Button {
                 viewModel.resetDraft()
