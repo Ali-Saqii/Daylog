@@ -22,6 +22,7 @@
 		9A5FDE4D3056F21A0042CDE0 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 9A5FDE4C3056F21A0042CDE0 /* FirebaseAnalytics */; };
 		9A5FDE4F3056F2430042CDE0 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 9A5FDE4E3056F2430042CDE0 /* FirebaseAI */; };
 		9A80317B303F1D200063F1DF /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 9A80317A303F1D200063F1DF /* FirebaseAppCheck */; };
+		9AD5BA1A30584B4600F2599E /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9AD5BA1930584B4600F2599E /* FirebaseAnalyticsCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +69,7 @@
 				9A4099E8303F17180018318C /* GoogleSignInSwift in Frameworks */,
 				9A4099DD303F16B10018318C /* FirebaseCore in Frameworks */,
 				9A4099E3303F16B10018318C /* FirebaseStorage in Frameworks */,
+				9AD5BA1A30584B4600F2599E /* FirebaseAnalyticsCore in Frameworks */,
 				9A4099ED303F18770018318C /* FacebookLogin in Frameworks */,
 				9A4099DB303F16B10018318C /* FirebaseAuth in Frameworks */,
 				9A4099E6303F17180018318C /* GoogleSignIn in Frameworks */,
@@ -141,6 +143,7 @@
 				9A5FDE4C3056F21A0042CDE0 /* FirebaseAnalytics */,
 				9A5FDE4E3056F2430042CDE0 /* FirebaseAI */,
 				9A978DE5C16CDA78263F7C34 /* FirebasePerformance */,
+				9AD5BA1930584B4600F2599E /* FirebaseAnalyticsCore */,
 			);
 			productName = Daylog;
 			productReference = 9A907700303B3FC0007A1559 /* Daylog.app */;
@@ -542,6 +545,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9A4099D9303F16B10018318C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebasePerformance;
+		};
+		9AD5BA1930584B4600F2599E /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9A4099D9303F16B10018318C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
