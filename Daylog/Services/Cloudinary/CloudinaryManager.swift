@@ -38,14 +38,12 @@ final class CloudinaryManager {
     private init() {}
 
     // MARK: - Configuration
-    // Replace these values with your Cloudinary dashboard credentials:
-    // 1. cloudName: Your Cloudinary Cloud Name
-    // 2. uploadPreset: An unsigned upload preset (Settings -> Upload -> Upload presets -> Add preset -> Signing Mode: Unsigned)
-    // 3. apiKey & apiSecret: (Optional) Needed only if making direct signed destroy API calls
-    var cloudName: String = "mhorojfd"
-    var uploadPreset: String = "daylog_preset"
-    var apiKey: String = "734265662156912"
-    var apiSecret: String = "UR74CKYbGyk5ISewhcCEMn8lLX8"
+    // Credentials are stored in CloudinaryConfig.swift — add that file to .gitignore
+    // so secrets are never committed to source control.
+    var cloudName: String    = CloudinaryConfig.cloudName
+    var uploadPreset: String = CloudinaryConfig.uploadPreset
+    var apiKey: String       = CloudinaryConfig.apiKey
+    var apiSecret: String    = CloudinaryConfig.apiSecret
 
     private let folder: String = "daylog_profile_photos"
 
