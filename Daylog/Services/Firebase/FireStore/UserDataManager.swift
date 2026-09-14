@@ -50,4 +50,9 @@ class UserDataManager {
         let data: [String: Any] = ["fcm_token": token]
         try await userDocument(userID: userID).updateData(data)
     }
+
+    // delete user data
+    func deleteUserData(userID: String) async throws {
+        try await userDocument(userID: userID).delete()
+    }
 }
