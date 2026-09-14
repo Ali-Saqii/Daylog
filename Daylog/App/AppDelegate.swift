@@ -16,6 +16,7 @@ class AppDelegate: NSObject, UIApplicationDelegate,UNUserNotificationCenterDeleg
 #endif
         FirebaseApp.configure()
         FCMService.shared.setup()
+        SyncManager.shared.startMonitoring()
         print("configured firebase (including Performance Monitoring)")
         
         ApplicationDelegate.shared.application(
