@@ -10,6 +10,17 @@ import Firebase
 import FirebaseAuth
 
 
+enum AuthenticationError: LocalizedError {
+    case userNotAuthenticated
+
+    var errorDescription: String? {
+        switch self {
+        case .userNotAuthenticated:
+            return "No authenticated user found. Please sign in again."
+        }
+    }
+}
+
 class AuthenticationManager {
     
     static let shared = AuthenticationManager()
@@ -17,7 +28,7 @@ class AuthenticationManager {
     // get Auth Provider
     func getProvider() throws -> [AuthProviderOption] {
         guard let providerData = Auth.auth().currentUser?.providerData else {
-            throw URLError(.badServerResponse)
+            throw AuthenticationError.userNotAuthenticated
         }
         
         var providers: [AuthProviderOption] = []
@@ -32,22 +43,23 @@ class AuthenticationManager {
 
     }
 }
-//MARK: signIn With email
+// MARK: - Sign In with Email
 extension AuthenticationManager {
-    func CreateUser(email:String, Password:String) async throws -> AuthDataResultModel {
-        let authDataResult = try await Auth.auth().createUser(withEmail: email, password: Password)
-        let result = AuthDataResultModel(user: authDataResult.user)
-        return result
+    func createUser(email: String, password: String) async throws -> AuthDataResultModel {
+        let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
+        return AuthDataResultModel(user: authDataResult.user)
     }
+
     func getUser() throws -> AuthDataResultModel {
         guard let user = Auth.auth().currentUser else {
-            throw URLError(.badServerResponse)
+            throw AuthenticationError.userNotAuthenticated
         }
         return AuthDataResultModel(user: user)
     }
+
     @discardableResult
-    func sigInUser(email:String, Password:String) async throws -> AuthDataResultModel{
-        let authDataResult = try await Auth.auth().signIn(withEmail: email, password: Password)
+    func signInWithEmail(email: String, password: String) async throws -> AuthDataResultModel {
+        let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
         return AuthDataResultModel(user: authDataResult.user)
     }
     
@@ -56,20 +68,18 @@ extension AuthenticationManager {
     }
     func updateEmail(email: String) async throws {
         guard let user = Auth.auth().currentUser else {
-            throw URLError(.badServerResponse)
+            throw AuthenticationError.userNotAuthenticated
         }
         // Uses Firebase's secure flow: sends a verification link to the new address
         // before the change is committed.
         try await user.sendEmailVerification(beforeUpdatingEmail: email)
     }
     
-    func updatePassword(password: String)async throws {
-        guard let user  = Auth.auth().currentUser else {
-            print("User Not found")
-            return
+    func updatePassword(password: String) async throws {
+        guard let user = Auth.auth().currentUser else {
+            throw AuthenticationError.userNotAuthenticated
         }
-        
-        try await user.updatePassword(to:password )
+        try await user.updatePassword(to: password)
     }
     func signOut() throws {
         try Auth.auth().signOut()
@@ -90,10 +100,10 @@ extension AuthenticationManager {
     func signInWithGoogle(tokens:GIDSignInResultModel) async throws -> AuthDataResultModel {
         let credential = GoogleAuthProvider.credential(withIDToken: tokens.idToken, accessToken: tokens.accessToken)
         print(credential.provider)
-        return try await signIn(crediential: credential)
+        return try await signIn(credential: credential)
     }
-    private func signIn(crediential: AuthCredential) async throws -> AuthDataResultModel {
-        let authDataResult = try await Auth.auth().signIn(with: crediential)
+    private func signIn(credential: AuthCredential) async throws -> AuthDataResultModel {
+        let authDataResult = try await Auth.auth().signIn(with: credential)
         return AuthDataResultModel(user: authDataResult.user)
     }
 }
@@ -103,38 +113,36 @@ extension AuthenticationManager {
     @discardableResult
     func signInWithFacebook(tokenString: String) async throws -> AuthDataResultModel {
         let credential = FacebookAuthProvider.credential(withAccessToken: tokenString)
-        return try await signIn(crediential: credential)
+        return try await signIn(credential: credential)
     }
 }
 
 // Link Accounts
 extension AuthenticationManager {
-    func linkEmail(email: String ,password: String) async throws -> AuthDataResultModel {
-        let credientials = EmailAuthProvider.credential(withEmail: email, password: password)
-        
-        guard let user = Auth.auth().currentUser else{
-            throw URLError(.badURL)
+    func linkEmail(email: String, password: String) async throws -> AuthDataResultModel {
+        let credentials = EmailAuthProvider.credential(withEmail: email, password: password)
+        guard let user = Auth.auth().currentUser else {
+            throw AuthenticationError.userNotAuthenticated
         }
-        let authDataResult = try await user.link(with: credientials)
+        let authDataResult = try await user.link(with: credentials)
         return AuthDataResultModel(user: authDataResult.user)
     }
-    
+
     func linkFacebook(tokens: FacebookAuthResultModel) async throws -> AuthDataResultModel {
-        let credientials = FacebookAuthProvider.credential(withAccessToken: tokens.accessToken)
-        return try await linkcredientials(credientials: credientials)
+        let credentials = FacebookAuthProvider.credential(withAccessToken: tokens.accessToken)
+        return try await linkCredentials(credentials)
     }
-    
+
     func linkGoogle(tokens: GIDSignInResultModel) async throws -> AuthDataResultModel {
-        let credientials = GoogleAuthProvider.credential(withIDToken: tokens.idToken, accessToken: tokens.accessToken)
-        return try await linkcredientials(credientials: credientials)
+        let credentials = GoogleAuthProvider.credential(withIDToken: tokens.idToken, accessToken: tokens.accessToken)
+        return try await linkCredentials(credentials)
     }
-    
-    private func linkcredientials(credientials:AuthCredential) async throws -> AuthDataResultModel{
+
+    private func linkCredentials(_ credentials: AuthCredential) async throws -> AuthDataResultModel {
         guard let user = Auth.auth().currentUser else {
-            throw URLError(.badURL)
+            throw AuthenticationError.userNotAuthenticated
         }
-        
-        let authDataResult = try await user.link(with: credientials)
+        let authDataResult = try await user.link(with: credentials)
         return AuthDataResultModel(user: authDataResult.user)
     }
 }

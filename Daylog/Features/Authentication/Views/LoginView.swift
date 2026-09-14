@@ -126,17 +126,15 @@ struct LoginView: View {
     }
     private func signInWithGoogle() {
         Task {
-            do{
+            do {
                 try await viewModel.signInGoogle()
-                appState.isLoggedIn = true
-            }catch{
+            } catch {
                 viewModel.errorMessage = "Unable to SignIn With Google"
             }
         }
     }
     private func logIn() {
-        viewModel.SignIn(email: viewModel.email, password: viewModel.password)
-        appState.isLoggedIn = viewModel.logInsucessful
+        viewModel.signIn(email: viewModel.email, password: viewModel.password)
     }
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {

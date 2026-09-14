@@ -11,15 +11,14 @@ import GoogleSignIn
 import FacebookLogin
 import FirebaseAuth
 
-import FirebaseAuth
 @MainActor
 final class AuthViewModel: ObservableObject {
     @Published var displayName = ""
     @Published var password = ""
     @Published var email = ""
-    @Published var errorMessage : String? = ""
-    @Published var logInsucessful = false
-    @Published var SignUpsucessful = false
+    @Published var errorMessage: String? = ""
+    @Published var loginSuccessful = false
+    @Published var signUpSuccessful = false
 
     func createAccount(email: String, password: String, name: String) {
         Task {
@@ -30,18 +29,18 @@ final class AuthViewModel: ObservableObject {
                 return
             }
             do {
-                let authDataresult = try await AuthenticationManager.shared.CreateUser(email: email, Password: password)
-                let user = AppUser(auth: authDataresult)
+                let authDataResult = try await AuthenticationManager.shared.createUser(email: email, password: password)
+                let user = AppUser(auth: authDataResult)
                 try await UserDataManager.shared.createUser(user: user)
-                self.SignUpsucessful = true
+                self.signUpSuccessful = true
                 NotificationManager.shared.notifySignUpSuccess()
-            } catch let error {
+            } catch {
                 self.errorMessage = AppError.format(error)
             }
         }
     }
 
-    func SignIn(email: String, password: String) {
+    func signIn(email: String, password: String) {
         guard !email.trimmingCharacters(in: .whitespaces).isEmpty,
               !password.isEmpty else {
             self.errorMessage = "Please enter both email and password."
@@ -49,15 +48,15 @@ final class AuthViewModel: ObservableObject {
         }
         Task {
             do {
-                let _ = try await AuthenticationManager.shared.sigInUser(email: email, Password: password)
-                self.logInsucessful = true
+                let _ = try await AuthenticationManager.shared.signInWithEmail(email: email, password: password)
+                self.loginSuccessful = true
                 NotificationManager.shared.notifyLoginSuccess()
-            } catch let error {
+            } catch {
                 self.errorMessage = AppError.format(error)
             }
         }
     }
-    
+
     func resetPassword(email: String) {
         guard !email.trimmingCharacters(in: .whitespaces).isEmpty else {
             self.errorMessage = "Please enter your email address."
@@ -72,65 +71,64 @@ final class AuthViewModel: ObservableObject {
         }
     }
 }
-//MARK: SignIn With Goolgel
 
+// MARK: - Sign In with Google
 extension AuthViewModel {
-    
+
     func signInGoogle() async throws {
         guard let topVC = Utilities.shared.topViewController() else {
             throw URLError(.cannotFindHost)
         }
         let gidSignInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: topVC)
-        
-        guard let idToken = gidSignInResult.user.idToken?.tokenString else{
+
+        guard let idToken = gidSignInResult.user.idToken?.tokenString else {
             throw URLError(.badServerResponse)
         }
         let accessToken = gidSignInResult.user.accessToken.tokenString
-        
         let tokens = GIDSignInResultModel(idToken: idToken, accessToken: accessToken)
-        let authDataresult =  try await AuthenticationManager.shared.signInWithGoogle(tokens:tokens)
+        let authDataResult = try await AuthenticationManager.shared.signInWithGoogle(tokens: tokens)
         NotificationManager.shared.notifyLoginSuccess()
-        let user = AppUser(auth: authDataresult)
+        let user = AppUser(auth: authDataResult)
         try await UserDataManager.shared.createUser(user: user)
     }
 }
-//MARK: SignIn With Facebook
+
+// MARK: - Sign In with Facebook
 extension AuthViewModel {
 
+    /// Signs in via Facebook. Errors propagate to callers; do NOT wrap in a Task here
+    /// so that structured concurrency is preserved.
     func signInFacebook() async {
-        Task {
-            do {
-                let loginManager = LoginManager()
+        do {
+            let loginManager = LoginManager()
 
-                let _: LoginManagerLoginResult = try await withCheckedThrowingContinuation { continuation in
-                    loginManager.logIn(permissions: ["public_profile", "email"], from: nil) { result, error in
-                        if let error {
-                            continuation.resume(throwing: error)
-                            return
-                        }
-                        guard let result, !result.isCancelled else {
-                            continuation.resume(throwing: URLError(.userCancelledAuthentication))
-                            return
-                        }
-                        continuation.resume(returning: result)
+            let _: LoginManagerLoginResult = try await withCheckedThrowingContinuation { continuation in
+                loginManager.logIn(permissions: ["public_profile", "email"], from: nil) { result, error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                        return
                     }
+                    guard let result, !result.isCancelled else {
+                        continuation.resume(throwing: URLError(.userCancelledAuthentication))
+                        return
+                    }
+                    continuation.resume(returning: result)
                 }
-
-                guard let tokenString = AccessToken.current?.tokenString else {
-                    self.errorMessage = "Could not retrieve Facebook access token"
-                    return
-                }
-
-                let authDataresult = try await AuthenticationManager.shared.signInWithFacebook(tokenString: tokenString)
-                let user = AppUser(auth: authDataresult)
-                try await UserDataManager.shared.createUser(user: user)
-                self.logInsucessful = true
-                NotificationManager.shared.notifyLoginSuccess()
-
-
-            } catch {
-                self.errorMessage = AppError.format(error)
             }
+
+            guard let tokenString = AccessToken.current?.tokenString else {
+                self.errorMessage = "Could not retrieve Facebook access token."
+                return
+            }
+
+            let authDataResult = try await AuthenticationManager.shared.signInWithFacebook(tokenString: tokenString)
+            let user = AppUser(auth: authDataResult)
+            try await UserDataManager.shared.createUser(user: user)
+            self.loginSuccessful = true
+            NotificationManager.shared.notifyLoginSuccess()
+
+        } catch {
+            self.errorMessage = AppError.format(error)
         }
     }
 

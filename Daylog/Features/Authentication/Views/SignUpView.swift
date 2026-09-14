@@ -45,7 +45,7 @@ struct SignUpView: View {
                         }
                 }
                 PrimaryAuthButton(action: {
-                    SignUp()
+                    signUp()
                 }, title: "SignUp", isDiable: false, height: 50, radius: 20)
                 Divider()
                     .overlay {
@@ -107,18 +107,15 @@ struct SignUpView: View {
     }
     private func signInWithGoogle() {
         Task {
-            do{
+            do {
                 try await viewModel.signInGoogle()
-                appState.isLoggedIn = true
-            }catch{
+            } catch {
                 viewModel.errorMessage = "Unable to SignIn With Google"
             }
         }
     }
-    private func SignUp() {
+    private func signUp() {
         viewModel.createAccount(email: viewModel.email, password: viewModel.password, name: viewModel.displayName)
-        appState.isLoggedIn = viewModel.SignUpsucessful
-        
     }
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {

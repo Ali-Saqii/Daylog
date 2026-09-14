@@ -6,16 +6,17 @@
 //
 
 import SwiftUI
-import CoreData
-
 
 struct RootView: View {
     @EnvironmentObject private var appState: AppState
-    @StateObject var AuthVm = AuthViewModel()
-    @State var showSplashScreen = false
+    @StateObject private var authVm = AuthViewModel()
+    @State private var showSplashScreen = true
+
     var body: some View {
         ZStack {
-            if !showSplashScreen {
+            if showSplashScreen {
+                SplashScreenView(isActive: $showSplashScreen)
+            } else {
                 if appState.isLoggedIn {
                     NavigationStack {
                         MainTabView()
@@ -24,20 +25,18 @@ struct RootView: View {
                 } else {
                     NavigationStack {
                         AuthView()
-                            .environmentObject(AuthVm)
+                            .environmentObject(authVm)
                             .environmentObject(appState)
                     }
                 }
-            } else {
-                SplashScreenView(isActive: $showSplashScreen)
             }
-        }.onAppear {
-            showSplashScreen = true
+        }
+        .onAppear {
+            // Brief splash before revealing the auth-driven UI.
+            // AppState.isLoggedIn is already set by the Firebase auth listener
+            // before this delay expires, so no manual check is needed.
             Task {
-                // Yield so SwiftUI renders the splash before the auth check runs
                 try? await Task.sleep(for: .milliseconds(800))
-                let authUser = try? AuthenticationManager.shared.getUser()
-                appState.isLoggedIn = authUser != nil
                 withAnimation(.easeInOut(duration: 0.3)) {
                     showSplashScreen = false
                 }
@@ -45,6 +44,7 @@ struct RootView: View {
         }
     }
 }
+
 #Preview {
     RootView()
         .environmentObject(AuthViewModel())
