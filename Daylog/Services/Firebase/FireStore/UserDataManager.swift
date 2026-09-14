@@ -21,7 +21,8 @@ class UserDataManager {
     //MARK: Create DB user
     
     func createUser(user: AppUser) async throws {
-        try userDocument(userID: user.id).setData(from: user,merge: false)
+        let data = try Firestore.Encoder().encode(user)
+        try await userDocument(userID: user.id).setData(data, merge: false)
     }
     
     // get dbUser
