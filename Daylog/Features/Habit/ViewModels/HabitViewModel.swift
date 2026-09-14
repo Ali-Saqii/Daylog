@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import FirebaseFirestore
 
 
 @MainActor
@@ -16,6 +17,7 @@ final class HabitViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
+    private var listenerRegistration: ListenerRegistration?
     private var listenerTask: Task<Void, Never>?
 
     var completedTodayCount: Int {
@@ -31,10 +33,11 @@ final class HabitViewModel: ObservableObject {
     }
 
     func startListening() {
+        listenerTask?.cancel()
         listenerTask = Task {
             do {
                 let authDataResult = try AuthenticationManager.shared.getUser()
-                HabitDataManager.shared.addListernerForAllHabits(userId: authDataResult.uid) { [weak self] habits in
+                listenerRegistration = HabitDataManager.shared.addListenerForAllHabits(userId: authDataResult.uid) { [weak self] habits in
                     guard let self else { return }
                     self.habits = habits
                     // Refresh today's completion status every time the habits list changes
@@ -99,7 +102,7 @@ final class HabitViewModel: ObservableObject {
 
     func updateHabit(_ habitID: String, _ habitTitle: String, _ habitEmoji: String) async throws {
         let user = try AuthenticationManager.shared.getUser()
-        try await HabitDataManager.shared.updateHabitFields(userId: user.uid, habitID: habitID, habitTitle: habitTitle, HabitEmoji: habitEmoji)
+        try await HabitDataManager.shared.updateHabitFields(userId: user.uid, habitId: habitID, title: habitTitle, emoji: habitEmoji)
     }
 
     func archiveHabit(_ habit: Habit) {
@@ -126,6 +129,7 @@ final class HabitViewModel: ObservableObject {
     
     deinit {
         listenerTask?.cancel()
+        listenerRegistration?.remove()
     }
 }
 

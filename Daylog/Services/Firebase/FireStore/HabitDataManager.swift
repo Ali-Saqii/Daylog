@@ -62,21 +62,20 @@ extension HabitDataManager {
         try await habitDocument(userId: userId, habitId: habitId).updateData(data)
     }
     
-    // update habitTitle
-    func updateHabitFields(userId: String, habitID: String,habitTitle: String , HabitEmoji: String) async throws {
-        guard  !userId.isEmpty  else { return  }
-         let data: [String: Any] = [
-            Habit.CodingKeys.title.rawValue: habitTitle,
-            Habit.CodingKeys.emoji.rawValue: HabitEmoji
-         ]
-        try await habitDocument(userId: userId, habitId: habitID).updateData(data)
-     }
+    func updateHabitFields(userId: String, habitId: String, title: String, emoji: String) async throws {
+        guard !userId.isEmpty else { return }
+        let data: [String: Any] = [
+            Habit.CodingKeys.title.rawValue: title,
+            Habit.CodingKeys.emoji.rawValue: emoji
+        ]
+        try await habitDocument(userId: userId, habitId: habitId).updateData(data)
+    }
     // Fetch Habits
     func getHabits(userId:String) async throws -> [Habit]{
         return try await habitsCollection(userId: userId).getAllHabits(as: Habit.self)
     }
     @discardableResult
-    func addListernerForAllHabits(userId: String, completion: @escaping (_ habits: [Habit]) -> Void) -> ListenerRegistration {
+    func addListenerForAllHabits(userId: String, completion: @escaping (_ habits: [Habit]) -> Void) -> ListenerRegistration {
         return habitsCollection(userId: userId).addSnapshotListener { querySnapshot, error in
             guard let documents = querySnapshot?.documents else {
                 print("no documents")

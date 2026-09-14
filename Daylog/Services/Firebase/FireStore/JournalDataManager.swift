@@ -68,7 +68,9 @@ extension JournalDataManager {
     }
 
     /// Real-time listener for all journal entries, sorted newest first.
-    func addListener(userId: String, completion: @escaping ([JournalEntry]) -> Void) {
+    /// Store the returned `ListenerRegistration` and call `.remove()` when done.
+    @discardableResult
+    func addListener(userId: String, completion: @escaping ([JournalEntry]) -> Void) -> ListenerRegistration {
         journalCollection(userId: userId)
             .order(by: JournalEntry.CodingKeys.dayKey.rawValue, descending: true)
             .addSnapshotListener { snapshot, _ in

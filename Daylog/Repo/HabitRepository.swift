@@ -32,8 +32,8 @@ final class HabitRepository: HabitRepositoryProtocol {
         try await dataManager.createHabit(userId: userId, title: title, emoji: emoji)
     }
 
-    func updateHabit(userId: String,habitId:String, title:String, emoji: String) async throws {
-        try await dataManager.updateHabitFields(userId: userId, habitID: habitId, habitTitle: title, HabitEmoji: emoji)
+    func updateHabit(userId: String, habitId: String, title: String, emoji: String) async throws {
+        try await dataManager.updateHabitFields(userId: userId, habitId: habitId, title: title, emoji: emoji)
     }
 
     func deleteHabit(userId: String, habitId: String) async throws {
