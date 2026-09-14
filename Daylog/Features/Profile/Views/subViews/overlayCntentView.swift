@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct overlayCntentView: View {
+struct OverlayContentView: View {
     var body: some View {
         Circle()
             .stroke(.orange,lineWidth: 2)
@@ -26,5 +26,7 @@ struct overlayCntentView: View {
 }
 
 #Preview {
-    overlayCntentView()
+    OverlayContentView()
 }
+
+typealias overlayCntentView = OverlayContentView

@@ -75,7 +75,7 @@ struct ProfileView: View {
         .sheet(isPresented: $showReminderSettings) {
             ReminderSettingsView()
         }
-        .onChange(of: selectedPhotoItem) { newItem in
+        .onChange(of: selectedPhotoItem) { _, newItem in
             guard let newItem else { return }
             Task {
                 if let data = try? await newItem.loadTransferable(type: Data.self) {
@@ -87,7 +87,6 @@ struct ProfileView: View {
 
     func logOut() {
         profileVM.signOut()
-        appState.isLoggedIn = !profileVM.isSignedOut
     }
 }
 
@@ -138,7 +137,7 @@ extension ProfileView {
                             matching: .images,
                             photoLibrary: .shared()
                         ) {
-                            overlayCntentView()
+                            OverlayContentView()
                         }
                         .disabled(profileVM.isUploadingPhoto)
                     }

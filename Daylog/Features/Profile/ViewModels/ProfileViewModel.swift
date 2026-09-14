@@ -44,8 +44,8 @@ final class ProfileViewModel: ObservableObject {
      func upDateEmail(email: String)async throws {
                 try await AuthenticationManager.shared.updateEmail(email: email)
     }
-    func reAuthenticateUser(email:String, password: String) async throws {
-        try await AuthenticationManager.shared.sigInUser(email: email, Password: password)
+    func reAuthenticateUser(email: String, password: String) async throws {
+        try await AuthenticationManager.shared.signInWithEmail(email: email, password: password)
     }
     func getAuthenticatedUser()  throws -> AuthDataResultModel {
         return try AuthenticationManager.shared.getUser()
@@ -81,10 +81,10 @@ final class ProfileViewModel: ObservableObject {
     // MARK: - Profile Stats
 
     func loadStats() {
+        isLoadingStats = true
         Task {
             do {
                 let authUser = try getAuthenticatedUser()
-                isLoadingStats = true
                 async let habitCount  = HabitDataManager.shared.getHabitCount(userId: authUser.uid)
                 async let bestStreak  = HabitDataManager.shared.getBestStreak(userId: authUser.uid)
                 async let entryCount  = JournalDataManager.shared.getEntryCount(userId: authUser.uid)
