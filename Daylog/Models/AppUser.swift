@@ -28,10 +28,10 @@ struct AppUser: Identifiable, Codable, Equatable {
         self.createdAt = createdAt
     }
     
-    init(auth:AuthDataResultModel) {
+    init(auth: AuthDataResultModel, displayName: String? = nil) {
         self.id = auth.uid
         self.email = auth.email
-        self.displayName = ""
+        self.displayName = DisplayNameNormalization.normalized(displayName ?? auth.displayName)
         self.photoUrl = auth.photourl
         self.createdAt = Date()
     }

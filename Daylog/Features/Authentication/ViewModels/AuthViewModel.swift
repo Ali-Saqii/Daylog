@@ -30,7 +30,7 @@ final class AuthViewModel: ObservableObject {
             }
             do {
                 let authDataResult = try await AuthenticationManager.shared.createUser(email: email, password: password)
-                let user = AppUser(auth: authDataResult)
+                let user = AppUser(auth: authDataResult, displayName: name)
                 try await UserDataManager.shared.createUser(user: user)
                 self.signUpSuccessful = true
                 NotificationManager.shared.notifySignUpSuccess()

@@ -13,11 +13,13 @@ struct AuthDataResultModel {
     let uid: String
     let email: String?
     let photourl: String?
+    let displayName: String?
     let isAnonymous: Bool
     init(user: User) {
         self.uid = user.uid
         self.email = user.email
         self.photourl = user.photoURL?.absoluteString
+        self.displayName = user.displayName
         self.isAnonymous = user.isAnonymous
     }
 }
